@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>Neko.Sdl.ImGuiBackend</RootNamespace>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Neko.SDL.ImGui\Neko.SDL.ImGui.csproj" />
+      <ProjectReference Include="..\Neko.SDL\Neko.SDL.csproj" />
+    </ItemGroup>
+
+</Project>
