@@ -1,3 +1,28 @@
+// This code is based on the original imgui_impl_sdlrenderer3.cpp, originally licenced under MIT license
+//
+// The MIT License (MIT)
+// 
+// Copyright (c) 2025 VanderCat
+// Copyright (c) 2014-2025 Omar Cornut
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -108,12 +133,6 @@ public static unsafe class ImGuiSdlRenderer {
 
         // Pin the color buffer for the native call
         fixed (ColorF* color3 = CollectionsMarshal.AsSpan(_data.ColorBuffer)) {
-            /*if (!SDL_RenderGeometryRaw(renderer, texture,
-                xy, xyStride,
-                (SDL_FColor*)color3, Marshal.SizeOf<ColorF>(),
-                uv, uvStride,
-                numVertices,
-                indices, numIndices, sizeIndices))Log.Warning($"geometry rendered with error: {SDL_GetError()}");*/
             renderer.GeometryRaw(
                 texture,
                 xy,
@@ -136,21 +155,6 @@ public static unsafe class ImGuiSdlRenderer {
         public bool ClipEnabled;
         public Rectangle? ClipRect;
     };
-    
-    static void DebugVertexData(ImDrawVert* vtxBuffer, int count, ushort* idxBuffer, int idxCount) {
-        Console.WriteLine("Vertex Data:");
-        for (int i = 0; i < Math.Min(count, 5); i++)
-        {
-            var vert = vtxBuffer[i];
-            Console.WriteLine($"Vertex {i}: pos=({vert.pos.X}, {vert.pos.Y}), uv=({vert.uv.X}, {vert.uv.Y}), col=0x{vert.col:X8}");
-        }
-
-        Console.WriteLine("\nIndex Data:");
-        for (int i = 0; i < Math.Min(idxCount, 5); i++)
-        {
-            Console.WriteLine($"Index {i}: {idxBuffer[i]} (0x{idxBuffer[i]:X4})");
-        }
-    }
 
     public static void RenderDrawData(ImDrawDataPtr drawData, Renderer renderer) {
 	    // If there's a scale factor set by the user, use that instead
@@ -200,18 +204,9 @@ public static unsafe class ImGuiSdlRenderer {
             var vtxBuffer = drawList.VtxBuffer.Data;
             var idxBuffer = drawList.IdxBuffer.Data;
             
-            //Console.WriteLine($"DrawList {n}: VtxBuffer size: {drawList.VtxBuffer.Size}, IdxBuffer size: {drawList.IdxBuffer.Size}");
-
             for (var cmdI = 0; cmdI < drawList.CmdBuffer.Size; cmdI++) {
                 var pcmd = drawList.CmdBuffer[cmdI];
                 
-                for (int i = 0; i < Math.Min(3, pcmd.ElemCount); i++) {
-                    var idx = drawList.IdxBuffer[(int)pcmd.IdxOffset + i];
-                    var vtx = drawList.VtxBuffer[(int)pcmd.VtxOffset + idx];
-                    //Console.WriteLine($"Vertex {i}: Pos: ({vtx.pos.X}, {vtx.pos.Y}), UV: ({vtx.uv.X}, {vtx.uv.Y}), Col: {vtx.col:X8}");
-                }
-                
-                //Console.WriteLine($"Command {cmdI}: ElemCount: {pcmd.ElemCount}, TextureId: {pcmd.TextureId}");
                 if (pcmd.UserCallback != 0) {
                     // User callback, registered via ImDrawList::AddCallback()
                     // (ImDrawCallback_ResetRenderState is a special callback value used by the user to request the renderer to reset render state.)

@@ -1,3 +1,29 @@
+// This code is based on the original imgui_impl_sdl3.cpp, originally licenced under MIT license
+//
+// The MIT License (MIT)
+// 
+// Copyright (c) 2025 VanderCat
+// Copyright (c) 2014-2025 Omar Cornut
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+
 using System.Drawing;
 using System.Numerics;
 using System.Runtime.CompilerServices;
@@ -30,46 +56,6 @@ public static unsafe class ImGuiSdl {
     // Missing features or Issues:
     //  [ ] Platform: Multi-viewport: Minimized windows seems to break mouse wheel events (at least under Windows).
     //  [x] Platform: IME support. Position somehow broken in SDL3 + app needs to call 'SDL_SetHint(SDL_HINT_IME_SHOW_UI, "1");' before SDL_CreateWindow()!.
-
-    // You can use unmodified imgui_impl_* files in your project. See examples/ folder for examples of using this.
-    // Prefer including the entire imgui/ repository into your project (either as a copy or as a submodule), and only build the backends you need.
-    // Learn about Dear ImGui:
-    // - FAQ                  https://dearimgui.com/faq
-    // - Getting Started      https://dearimgui.com/getting-started
-    // - Documentation        https://dearimgui.com/docs (same as your local docs/ folder).
-    // - Introduction, links and more at the top of imgui.cpp
-
-    // CHANGELOG
-    // (minor and older changes stripped away, please see git history for details)
-    //  2025-XX-XX: Platform: Added support for multiple windows via the ImGuiPlatformIO interface.
-    //  2024-09-11: (Docking) Added support for viewport.ParentViewportId field to support parenting at OS level. (#797
-    //  2024-10-24: Emscripten: EventType.MOUSE_WHEEL event doesn't require dividing by 100.0f on Emscripten.
-    //  2024-09-03: Update for SDL3 api changes: SDL_GetGamepads() memory ownership revert. (#7918, #7898, #7807)
-    //  2024-08-22: moved some OS/backend related function pointers from ImGuiIO to ImGuiPlatformIO:
-    //               - io.GetClipboardTextFn    -> platform_io.Platform_GetClipboardTextFn
-    //               - io.SetClipboardTextFn    -> platform_io.Platform_SetClipboardTextFn
-    //               - io.PlatformSetImeDataFn  -> platform_io.Platform_SetImeDataFn
-    //  2024-08-19: Storing SDL_WindowID inside ImGuiViewport::PlatformHandle instead of Window.
-    //  2024-08-19: ProcessEvent() now ignores events intended for other SDL windows. (#7853)
-    //  2024-07-22: Update for SDL3 api changes: SDL_GetGamepads() memory ownership change. (#7807)
-    //  2024-07-18: Update for SDL3 api changes: SDL_GetClipboardText() memory ownership change. (#7801)
-    //  2024-07-15: Update for SDL3 api changes: SDL_GetProperty() change to SDL_GetPointerProperty(). (#7794)
-    //  2024-07-02: Update for SDL3 api changes: Keycode.x renames and Keycode.KP_x removals (#7761, #7762).
-    //  2024-07-01: Update for SDL3 api changes: SDL_SetTextInputRect() changed to SDL_SetTextInputArea().
-    //  2024-06-26: Update for SDL3 api changes: SDL_StartTextInput()/SDL_StopTextInput()/SDL_SetTextInputRect() functions signatures.
-    //  2024-06-24: Update for SDL3 api changes: EventType.KEY_DOWN/EventType.KEY_UP contents.
-    //  2024-06-03; Update for SDL3 api changes: SystemCursor. renames.
-    //  2024-05-15: Update for SDL3 api changes: Keycode. renames.
-    //  2024-04-15: Inputs: Re-enable calling SDL_StartTextInput()/SDL_StopTextInput() as SDL3 no longer enables it by default and should play nicer with IME.
-    //  2024-02-13: Inputs: Fixed gamepad support. Handle gamepad disconnection. Added SetGamepadMode().
-    //  2023-11-13: Updated for recent SDL3 API changes.
-    //  2023-10-05: Inputs: Added support for extra ImGuiKey values: F13 to F24 function keys, app back/forward keys.
-    //  2023-05-04: Fixed build on Emscripten/iOS/Android. (#6391)
-    //  2023-04-06: Inputs: Avoid calling SDL_StartTextInput()/SDL_StopTextInput() as they don't only pertain to IME. It's unclear exactly what their relation is to IME. (#6306)
-    //  2023-04-04: Inputs: Added support for io.AddMouseSourceEvent() to discriminate ImGuiMouseSource.Mouse/ImGuiMouseSource.TouchScreen. (#2702)
-    //  2023-02-23: Accept SDL_GetPerformanceCounter() not returning a monotonically increasing value. (#6189, #6114, #3644)
-    //  2023-02-07: Forked "imgui_impl_sdl2" into "imgui_impl_sdl3". Removed version checks for old feature. Refer to imgui_impl_sdl2.cpp for older changelog.
-
 
     // SDL Data
     public enum GamepadMode { AutoFirst, AutoAll, Manual };
@@ -563,7 +549,7 @@ public static unsafe class ImGuiSdl {
         else {
             focusedWindow = _backend.Window;
             //TODO: Window.IsFocused
-            isAppFocused = _backend.Window.Flags.HasFlag(SDL_WindowFlags.SDL_WINDOW_INPUT_FOCUS);
+            isAppFocused = _backend.Window.Flags.HasFlag(WindowFlags.InputFocus);
             
             // SDL 2.0.3 and non-windowed systems: single-viewport only
         }
@@ -630,14 +616,12 @@ public static unsafe class ImGuiSdl {
     }
 
     static void CloseGamepads() {
-        
         if (_backend.GamepadMode == GamepadMode.Manual) return;
         foreach (SDL_Gamepad* gamepad in _backend.Gamepads)
             SDL_CloseGamepad(gamepad);
     }
 
     public static void SetGamepadMode(GamepadMode mode, IEnumerable<IntPtr>? gamepads) {
-        
         CloseGamepads();
 
         if (mode is GamepadMode.Manual) {
@@ -674,7 +658,6 @@ public static unsafe class ImGuiSdl {
     static void UpdateGamepads() {
         var io = ImGui.GetIO();
         
-
         // Update list of gamepads to use
         if (_backend.WantUpdateGamepadsList && _backend.GamepadMode != GamepadMode.Manual) {
             CloseGamepads();
@@ -729,7 +712,6 @@ public static unsafe class ImGuiSdl {
     }
     
     static void UpdateMonitors() {
-        
         ImGuiPlatformIO* platformIo = ImGui.GetPlatformIO();
         _backend.WantUpdateMonitors = false;
         
@@ -768,14 +750,13 @@ public static unsafe class ImGuiSdl {
         var io = ImGui.GetIO();
 
         // Setup display size (every frame to accommodate for window resizing)
-        int displayW, displayH;
         var size = _backend.Window.Size;
-        if (SDL_GetWindowFlags(_backend.Window).HasFlag(SDL_WindowFlags.SDL_WINDOW_MINIMIZED))
+        if (_backend.Window.Flags.HasFlag(WindowFlags.Minimized))
             size = new Size(0, 0);
-        SDL_GetWindowSizeInPixels(_backend.Window, &displayW, &displayH);
+        var display = _backend.Window.SizeInPixels;
         io.DisplaySize = new Vector2(size.Width, size.Height);
         if (size is { Width: > 0, Height: > 0 })
-            io.DisplayFramebufferScale = new Vector2((float)displayW / size.Width, (float)displayH / size.Height);
+            io.DisplayFramebufferScale = new Vector2((float)display.Width / size.Width, (float)display.Height / size.Height);
         
         // Update monitors
         if (_backend.WantUpdateMonitors)
@@ -997,13 +978,13 @@ public static unsafe class ImGuiSdl {
     static bool GetWindowFocus(ImGuiViewport* viewport) {
         var vd = ((ImGuiViewportPtr)viewport).GetViewportData();
         
-        return vd.Window.Flags.HasFlag(SDL_WindowFlags.SDL_WINDOW_INPUT_FOCUS);
+        return vd.Window.Flags.HasFlag(WindowFlags.InputFocus);
     }
 
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
     static bool GetWindowMinimized(ImGuiViewport* viewport) {
         var vd = ((ImGuiViewportPtr)viewport).GetViewportData();
-        return vd.Window.Flags.HasFlag(SDL_WindowFlags.SDL_WINDOW_MINIMIZED);
+        return vd.Window.Flags.HasFlag(WindowFlags.Minimized);
     }
 
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
@@ -1083,7 +1064,7 @@ public static unsafe class ImGuiSdl {
         var mainViewport = ImGui.GetMainViewport();
         var vd = new ViewportData {
             Window = window,
-            WindowID = (uint)SDL_GetWindowID(window),
+            WindowID = window.Id,
             WindowOwned = false,
             GLContext = sdlGlContext,
         };
