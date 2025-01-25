@@ -25,6 +25,15 @@ public unsafe partial class Window : SdlWrapper<SDL_Window> {
         _pin = this.Pin(GCHandleType.Normal);
     }
 
+    public static void CreateWindowAndRenderer(int width, int height, string title, WindowFlags windowFlags, out Window window, out Renderer renderer) {
+        SDL_Window* sdlWindow;
+        SDL_Renderer* sdlRenderer;
+        SDL_CreateWindowAndRenderer(title, width, height, (SDL_WindowFlags)windowFlags, &sdlWindow, &sdlRenderer)
+            .ThrowIfError("Failed to create window and renderer");
+        window = sdlWindow;
+        renderer = sdlRenderer;
+    }
+
     private static Dictionary<uint, Window> __windowIdCache = new();
 
     public static Window GetFromPtr(SDL_Window* window) {
@@ -38,10 +47,8 @@ public unsafe partial class Window : SdlWrapper<SDL_Window> {
     }
 
     protected virtual void Create(int width, int height, string title, WindowFlags windowFlags) {
-        var window = (IntPtr)0;
         Handle = SDL_CreateWindow(title, width, height, (SDL_WindowFlags)windowFlags);
         if (Handle is null) throw new SdlException("Failed to open window:");
-        
     }
 
     public Properties Properties => new (SDL_GetWindowProperties(this)); //todo: dont create object

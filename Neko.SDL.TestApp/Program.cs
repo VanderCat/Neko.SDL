@@ -1,6 +1,4 @@
-﻿// See https://aka.ms/new-console-template for more information
-
-using System.Drawing;
+﻿using System.Drawing;
 using System.Numerics;
 using ImGuiNET;
 using Neko.Sdl.ImGuiBackend;
@@ -106,7 +104,7 @@ internal class Program {
                     counter++;
                 ImGui.SameLine();
                 ImGui.Text($"counter = {counter}");
-
+                ImGui.Text($"Running SDL {NekoSDL.Version} ({NekoSDL.Revision}) on bindings made for {NekoSDL.BindingsVersion} ({NekoSDL.BindingsRevision})");
                 ImGui.Text($"Application average {1000.0f / io.Framerate:F3} ms/frame ({io.Framerate:F1} FPS)");
                 ImGui.End();
             }
