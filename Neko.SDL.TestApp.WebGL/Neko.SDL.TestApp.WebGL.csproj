@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WebAssembly">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <WasmAllowUndefinedSymbols>true</WasmAllowUndefinedSymbols>
+        <OutputType>Exe</OutputType>
+        <WasmShellIndexHtmlPath>index.html</WasmShellIndexHtmlPath>
+        <EmccFlags>-s FULL_ES3=1 -lopenal -lGL -s</EmccFlags>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Uno.Wasm.Bootstrap" Version="9.0.*" />
+    </ItemGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+        <DefineConstants>DEBUG;TRACE</DefineConstants>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+        <DebugType>none</DebugType>
+        <DebugSymbols>false</DebugSymbols>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Content Include="main.js" UnoDeploy="Package" />
+        <NativeFileReference Include="Native/SDL3.a" />
+        <NativeFileReference Include="Native/cimgui.a" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Neko.SDL.ImGui.SDLRenderer\Neko.SDL.ImGui.SDLRenderer.csproj" />
+      <ProjectReference Include="..\Neko.SDL\Neko.SDL.csproj" />
+    </ItemGroup>
+    
+</Project>
