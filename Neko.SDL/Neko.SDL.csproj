@@ -10,7 +10,7 @@
 
     <ItemGroup>
       <PackageReference Include="CommunityToolkit.HighPerformance" Version="8.4.0" />
-      <PackageReference Include="ppy.SDL3-CS" Version="2025.105.0" />
+      <PackageReference Include="ppy.SDL3-CS" Version="2025.220.0" />
       <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.0" />
     </ItemGroup>
 
