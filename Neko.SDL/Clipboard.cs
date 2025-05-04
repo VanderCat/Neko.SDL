@@ -8,7 +8,7 @@ public static unsafe class Clipboard {
     public static string[] GetMimeTypes() {
         var size = (UIntPtr)0;
         var a = SDL_GetClipboardMimeTypes((UIntPtr*)Unsafe.AsPointer(ref size));
-        if (a is not null) throw new SdlException("");
+        if (a is null) throw new SdlException();
         var arr = new string[size];
         var span = new Span<IntPtr>(a, (int)size);
         for (var i = 0; i < span.Length; i++) {
@@ -24,7 +24,7 @@ public static unsafe class Clipboard {
     public static byte[] GetData(string mimeType) {
         var size = (UIntPtr)0;
         var a = SDL_GetClipboardData(mimeType, (UIntPtr*)Unsafe.AsPointer(ref size));
-        if (a == 0) throw new SdlException("");
+        if (a == 0) throw new SdlException();
         var arr = new byte[size];
         Marshal.Copy(a, arr, 0, (int)size);
         UnmanagedMemory.Free(a);
