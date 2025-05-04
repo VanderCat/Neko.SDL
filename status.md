@@ -467,15 +467,15 @@ Not supported.
 
 ### Vulkan Support
 
-| Original Function                   | Neko.SDL equivalent                 |
-|-------------------------------------|-------------------------------------|
-| SDL_Vulkan_CreateSurface            | ❌ MISSING                           |
-| SDL_Vulkan_DestroySurface           | ❌ MISSING                           |
-| SDL_Vulkan_GetInstanceExtensions    | ❌ MISSING                           |
-| SDL_Vulkan_GetPresentationSupport   | Video.Vulkan.GetPresentationSupport |
-| SDL_Vulkan_GetVkGetInstanceProcAddr | Video.Vulkan.GetInstanceProcAddr    |
-| SDL_Vulkan_LoadLibrary              | Video.Vulkan.LoadLibrary            |
-| SDL_Vulkan_UnloadLibrary            | Video.Vulkan.UnloadLibrary          |
+| Original Function                   | Neko.SDL equivalent                                        |
+|-------------------------------------|------------------------------------------------------------|
+| SDL_Vulkan_CreateSurface            | Video.Vulkan.CreateVkSurface (Vide.Window.CreateVkSurface) |
+| SDL_Vulkan_DestroySurface           | Video.Vulkan.DestroyVkSurface                              |
+| SDL_Vulkan_GetInstanceExtensions    | Video.Vulkan.GetInstanceExtensions                         |
+| SDL_Vulkan_GetPresentationSupport   | Video.Vulkan.GetPresentationSupport                        |
+| SDL_Vulkan_GetVkGetInstanceProcAddr | Video.Vulkan.GetVkGetInstanceProcAddr                      |
+| SDL_Vulkan_LoadLibrary              | Video.Vulkan.LoadLibrary                                   |
+| SDL_Vulkan_UnloadLibrary            | Video.Vulkan.UnloadLibrary                                 |
 
 ### Metal Support 
 
