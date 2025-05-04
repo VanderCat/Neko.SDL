@@ -7,12 +7,12 @@ namespace Neko.Sdl.Video;
 /// <summary>
 /// Functions for creating Vulkan surfaces on SDL windows.<br/><br/>
 /// For the most part, Vulkan operates independent of SDL, but it benefits from a little support during setup.<br/><br/>
-/// Use GetInstanceExtensions() to get platform-specific bits for creating a VkInstance, then
-/// GetVkGetInstanceProcAddr() to get the appropriate function for querying Vulkan entry points.
+/// Use <see cref="GetInstanceExtension()"/> to get platform-specific bits for creating a VkInstance, then
+/// <see cref="GetVkGetInstanceProcAddr()"/> to get the appropriate function for querying Vulkan entry points.
 /// Then CreateSurface() will get you the final pieces you need to prepare for rendering into an SDL_Window with Vulkan.
 /// <br/><br/>
 /// Unlike OpenGL, most of the details of "context" creation and window buffer swapping are handled by the Vulkan
-/// API directly, so SDL doesn't provide Vulkan equivalents of Gl.SwapWindow(), etc; they aren't necessary.
+/// API directly, so SDL doesn't provide Vulkan equivalents of <see cref="Gl.GlSwap()"/>, etc; they aren't necessary.
 /// </summary>
 public static unsafe class Vulkan {
     /// <summary>
@@ -28,7 +28,7 @@ public static unsafe class Vulkan {
     /// library isn't actually unloaded until there have been an equivalent number of calls to Vulkan.UnloadLibrary.
     /// <br/><br/>
     /// If you specify a path, an application should retrieve all of the Vulkan functions it uses from the
-    /// dynamic library using SDL_Vulkan_GetVkGetInstanceProcAddr unless you can guarantee path points to the same
+    /// dynamic library using <see cref="GetVkGetInstanceProcAddr()"/> unless you can guarantee path points to the same
     /// vulkan loader library the application linked to.
     /// <br/><br/>
     /// On Apple devices, if path is NULL, SDL will attempt to find the vkGetInstanceProcAddr address within all the
@@ -51,8 +51,8 @@ public static unsafe class Vulkan {
     /// </summary>
     /// <remarks>
     /// SDL keeps a counter of how many times this function has been called, so it is safe to call this function
-    /// multiple times, so long as it is paired with an equivalent number of calls to Vulkan.LoadLibrary. The
-    /// library isn't actually unloaded until there have been an equivalent number of calls to Vulkan.UnloadLibrary.
+    /// multiple times, so long as it is paired with an equivalent number of calls to <see cref="LoadLibrary()"/>. The
+    /// library isn't actually unloaded until there have been an equivalent number of calls to <see cref="UnloadLibrary()"/>.
     /// <br/><br/>
     /// Once the library has actually been unloaded, if any Vulkan instances remain, they will likely crash the program.
     /// Clean up any existing Vulkan resources, and destroy appropriate windows, renderers and GPU devices before
@@ -77,7 +77,8 @@ public static unsafe class Vulkan {
     /// <returns>An array of extension name strings on success</returns>
     /// <exception cref="SdlException">Failed to get extensions</exception>
     /// <remarks>
-    /// This should be called after either calling Vulkan.LoadLibrary() or creating a Window with the WindowFlags.Vulkan flag.
+    /// This should be called after either calling <see cref="LoadLibrary()"/> or creating a Window with the
+    /// <see cref="Neko.Sdl.Video.WindowFlags.Vulkan"/> flag.
     /// <br/><br/>
     /// On return, the variable pointed to by count will be set to the number of elements returned, suitable for using
     /// with VkInstanceCreateInfo.enabledExtensionCount, and the returned array can be used with
@@ -103,7 +104,7 @@ public static unsafe class Vulkan {
     /// <param name="queueFamilyIndex">a valid queue family index for the given physical device</param>
     /// <returns>true if supported, false if unsupported or an error occurred.</returns>
     /// <remarks>
-    /// The instance must have been created with extensions returned by Vulkan.GetInstanceExtensions() enabled.
+    /// The instance must have been created with extensions returned by <see cref="GetInstanceExtension()"/> enabled.
     /// </remarks>
     public static bool GetPresentationSupport(IntPtr vkInsance, IntPtr vkDevice, uint queueFamilyIndex) =>
         SDL_Vulkan_GetPresentationSupport((VkInstance_T*)vkInsance, (VkPhysicalDevice_T*)vkDevice, queueFamilyIndex);
@@ -118,8 +119,9 @@ public static unsafe class Vulkan {
     /// a VkAllocationCallbacks struct, which lets the app set the allocator that creates the surface. Can be NULL.
     /// </param>
     /// <remarks>
-    /// The window must have been created with the SDL_WINDOW_VULKAN flag and instance must have been created with
-    /// extensions returned by Vulkan.GetInstanceExtensions() enabled.
+    /// The window must have been created with the <see cref="Neko.Sdl.Video.WindowFlags.Vulkan"/> flag and instance
+    /// must have been created with
+    /// extensions returned by <see cref="GetInstanceExtension()"/> enabled.
     /// <br/><br/>
     /// If allocator is NULL, Vulkan will use the system default allocator. This argument is passed directly to Vulkan
     /// and isn't used by SDL itself.
@@ -137,10 +139,11 @@ public static unsafe class Vulkan {
     /// a VkAllocationCallbacks struct, which lets the app set the allocator that destroys the surface. Optional
     /// </param>
     /// <remarks>
-    /// This should be called before Window.Destroy(), if Vulkan.CreateVkSurface() was called after new Window()
+    /// This should be called before <see cref="Window.Dispose"/>, if <see cref="CreateVkSurface"/> was called after
+    /// <see cref="Window.Create"/>
     /// <br/><br/>
-    /// The instance must have been created with extensions returned by Vulkan.GetInstanceExtensions() enabled and
-    /// surface must have been created successfully by an Vulkan.CreateSurface() call.
+    /// The instance must have been created with extensions returned by <see cref="GetInstanceExtension"/> enabled and
+    /// surface must have been created successfully by a <see cref="CreateVkSurface"/> call.
     /// <br/><br/>
     /// If allocator is NULL, Vulkan will use the system default allocator. This argument is passed directly to Vulkan
     /// and isn't used by SDL itself.

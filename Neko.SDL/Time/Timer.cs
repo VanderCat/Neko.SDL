@@ -8,11 +8,9 @@ namespace Neko.Sdl.Time;
 /// <br/><br/>
 /// This is not to be confused with calendar time management, which is provided by CategoryTime.
 /// <br/><br/>
-/// This category covers measuring time elapsed (Timer.GetTicks(), Timer.GetPerformanceCounter()), putting a thread
-/// to sleep for a certain amount of time (SDL_Delay(), SDL_DelayNS(), SDL_DelayPrecise()), and firing a callback
-/// function after a certain amount of time has elasped (SDL_AddTimer(), etc).
-/// <br/><br/>
-/// There are also useful macros to convert between time units, like SDL_SECONDS_TO_NS() and such.
+/// This category covers measuring time elapsed (<see cref="GetTicks"/>, <see cref="GetPerformanceCounter"/>), putting a thread
+/// to sleep for a certain amount of time (<see cref="Delay"/>, <see cref="DelayNS"/>, <see cref="DelayPrecise"/>), and firing a callback
+/// function after a certain amount of time has elasped (<see cref="Add"/>, etc).
 /// </summary>
 public static unsafe class Timer {
     /// <summary>
@@ -73,7 +71,7 @@ public static unsafe class Timer {
     /// <returns>timer ID</returns>
     /// <remarks>
     /// The callback function is passed the current timer interval and the user supplied parameter from the
-    /// Timer.Add() call and should return the next timer interval. If the value returned from the callback is 0,
+    /// <see cref="Add"/> call and should return the next timer interval. If the value returned from the callback is 0,
     /// the timer is canceled and will be removed.
     /// <br/><br/>
     /// The callback is run on a separate thread, and for short timeouts can potentially be called before this function
@@ -82,8 +80,8 @@ public static unsafe class Timer {
     /// Timers take into account the amount of time it took to execute the callback. For example, if the callback took
     /// 250 ms to execute and returned 1000 (ms), the timer would only wait another 750 ms before its next iteration.
     /// <br/><br/>
-    /// Timing may be inexact due to OS scheduling. Be sure to note the current time with Timer.GetTicksNS() or
-    /// Timer.GetPerformanceCounter() in case your callback needs to adjust for variances.
+    /// Timing may be inexact due to OS scheduling. Be sure to note the current time with <see cref="GetTicksNS"/> or
+    /// <see cref="GetPerformanceCounter"/> in case your callback needs to adjust for variances.
     /// <br/><br/>
     /// It is safe to call this function from any thread.
     /// </remarks>
@@ -105,8 +103,8 @@ public static unsafe class Timer {
     /// Timers take into account the amount of time it took to execute the callback. For example, if the callback took
     /// 250 ns to execute and returned 1000 (ns), the timer would only wait another 750 ns before its next iteration.
     /// <br/><br/>
-    /// Timing may be inexact due to OS scheduling. Be sure to note the current time with Timer.GetTicksNS() or
-    /// Timer.GetPerformanceCounter() in case your callback needs to adjust for variances.
+    /// Timing may be inexact due to OS scheduling. Be sure to note the current time with <see cref="GetTicksNS"/> or
+    /// T<see cref="GetPerformanceCounter"/> in case your callback needs to adjust for variances.
     /// <br/><br/>
     /// It is safe to call this function from any thread.
     /// </remarks>
@@ -117,7 +115,7 @@ public static unsafe class Timer {
     }
 
     /// <summary>
-    /// Remove a timer created with Timer.Add()
+    /// Remove a timer created with <see cref="Add"/>
     /// </summary>
     /// <param name="id">the ID of the timer to remove</param>
     /// <remarks>It is safe to call this function from any thread</remarks>
@@ -167,7 +165,7 @@ public static unsafe class Timer {
     /// This function is typically used for profiling.
     /// <br/><br/>
     /// The counter values are only meaningful relative to each other. Differences between values can be converted to
-    /// times by using Timer.GetPerformanceFrequency().
+    /// times by using <see cref="GetPerformanceFrequency"/>.
     /// <br/><br/>
     /// It is safe to call this function from any thread.
     /// </remarks>
@@ -185,7 +183,7 @@ public static unsafe class Timer {
     /// </summary>
     /// <returns>
     /// unsigned 64‑bit integer that represents the number of milliseconds that have elapsed since the SDL library was
-    /// initialized (typically via a call to NekoSDL.Init).
+    /// initialized (typically via a call to <see cref="NekoSDL.Init"/>).
     /// </returns>
     /// <remarks>It is safe to call this function from any thread.</remarks>
     public static ulong GetTicks() => SDL_GetTicks();
