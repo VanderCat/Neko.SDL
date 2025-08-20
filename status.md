@@ -451,38 +451,167 @@ Not supported.
 
 ### Clipboard Handling
 
-| Original Function           | Neko.SDL equivalent               |
-|-----------------------------|-----------------------------------|
-| SDL_ClearClipboardData      | Clipboard.Clear                   |
-| SDL_GetClipboardData        | Clipboard.GetData                 |
-| SDL_GetClipboardMimeTypes   | Clipboard.GetMimeTypes            |
-| SDL_GetClipboardText        | Clipboard.Text                    |
-| SDL_GetPrimarySelectionText | Clipboard.PrimarySelectionText    |
-| SDL_HasClipboardData        | Clipboard.HasData                 |
-| SDL_HasClipboardText        | Clipboard.HasText                 |
-| SDL_HasPrimarySelectionText | Clipboard.HasPrimarySelectionText |
-| SDL_SetClipboardData        | Clipboard.SetData                 |
-| SDL_SetClipboardText        | Clipboard.Text                    |
-| SDL_SetPrimarySelectionText | Clipboard.PrimarySelectionText    |
+| Original Function           | Neko.SDL equivalent                 |
+|-----------------------------|-------------------------------------|
+| SDL_ClearClipboardData      | ✅ Clipboard.Clear                   |
+| SDL_GetClipboardData        | ✅ Clipboard.GetData                 |
+| SDL_GetClipboardMimeTypes   | ✅ Clipboard.GetMimeTypes            |
+| SDL_GetClipboardText        | ✅ Clipboard.Text                    |
+| SDL_GetPrimarySelectionText | ✅ Clipboard.PrimarySelectionText    |
+| SDL_HasClipboardData        | ✅ Clipboard.HasData                 |
+| SDL_HasClipboardText        | ✅ Clipboard.HasText                 |
+| SDL_HasPrimarySelectionText | ✅ Clipboard.HasPrimarySelectionText |
+| SDL_SetClipboardData        | ✅ Clipboard.SetData                 |
+| SDL_SetClipboardText        | ✅ Clipboard.Text                    |
+| SDL_SetPrimarySelectionText | ✅ Clipboard.PrimarySelectionText    |
 
 ### Vulkan Support
 
-| Original Function                   | Neko.SDL equivalent                                        |
-|-------------------------------------|------------------------------------------------------------|
-| SDL_Vulkan_CreateSurface            | Video.Vulkan.CreateVkSurface (Vide.Window.CreateVkSurface) |
-| SDL_Vulkan_DestroySurface           | Video.Vulkan.DestroyVkSurface                              |
-| SDL_Vulkan_GetInstanceExtensions    | Video.Vulkan.GetInstanceExtensions                         |
-| SDL_Vulkan_GetPresentationSupport   | Video.Vulkan.GetPresentationSupport                        |
-| SDL_Vulkan_GetVkGetInstanceProcAddr | Video.Vulkan.GetVkGetInstanceProcAddr                      |
-| SDL_Vulkan_LoadLibrary              | Video.Vulkan.LoadLibrary                                   |
-| SDL_Vulkan_UnloadLibrary            | Video.Vulkan.UnloadLibrary                                 |
+| Original Function                   | Neko.SDL equivalent                                          |
+|-------------------------------------|--------------------------------------------------------------|
+| SDL_Vulkan_CreateSurface            | ✅ Video.Vulkan.CreateVkSurface (Vide.Window.CreateVkSurface) |
+| SDL_Vulkan_DestroySurface           | ✅ Video.Vulkan.DestroyVkSurface                              |
+| SDL_Vulkan_GetInstanceExtensions    | ✅ Video.Vulkan.GetInstanceExtensions                         |
+| SDL_Vulkan_GetPresentationSupport   | ✅ Video.Vulkan.GetPresentationSupport                        |
+| SDL_Vulkan_GetVkGetInstanceProcAddr | ✅ Video.Vulkan.GetVkGetInstanceProcAddr                      |
+| SDL_Vulkan_LoadLibrary              | ✅ Video.Vulkan.LoadLibrary                                   |
+| SDL_Vulkan_UnloadLibrary            | ✅ Video.Vulkan.UnloadLibrary                                 |
 
-### Metal Support 
-
-NYI
-
+### Metal Support
 ### Camera
 
-NYI
+## Input Events
+### Event Handling
+### Keyboard Support
+### Keyboard Keycodes
+### Keyboard Scancodes
+### Mouse Support
+### Joystick Support
+### Gamepad Support
+### Touch Support
+### Pen Support
+### Sensors
+### HIDAPI
 
-//TODO: Add more
+## Force Feedback ("Haptic")
+### Force Feedback Support
+
+## Audio
+### Audio Playback, Recording, and Mixing
+
+## GPU
+### 3D Rendering and GPU Compute
+
+## Threads
+### Thread Management
+### Thread Synchronization Primitives
+### Atomic Operations
+
+## File and I/O Abstractions
+### Filesystem Access
+### Storage Abstraction
+| Original Function             | Neko.SDL equivalent                      |
+|-------------------------------|------------------------------------------|
+| SDL_CloseStorage              | ✅ Filesystem.Storage.Dispose             |
+| SDL_CopyStorageFile           | ✅ Filesystem.Storage.Copy                |
+| SDL_CreateStorageDirectory    | ✅ Filesystem.Storage.CreateDirectory     |
+| SDL_EnumerateStorageDirectory | 🚧 Filesystem.Storage.EnumerateDirectory |
+| SDL_GetStorageFileSize        | ❌ MISSING                                |
+| SDL_GetStoragePathInfo        | ✅ Filesystem.Storage.Info                |
+| SDL_GetStorageSpaceRemaining  | ✅ Filesystem.Storage.SpaceRemaining      |
+| SDL_GlobStorageDirectory      | ❌ MISSING                                |
+| SDL_OpenFileStorage           | ❌ MISSING                                |
+| SDL_OpenStorage               | ✅ Filesystem.Storage.Open                |
+| SDL_OpenTitleStorage          | ✅ Filesystem.Storage.OpenTitle           |
+| SDL_OpenUserStorage           | ✅ Filesystem.Storage.OpenUser            |
+| SDL_ReadStorageFile           | ✅ Filesystem.Storage.ReadFile            |
+| SDL_RemoveStoragePath         | ✅ Filesystem.Storage.RemovePath          |
+| SDL_RenameStoragePath         | ✅ Filesystem.Storage.RenamePath          |
+| SDL_StorageReady              | ✅ Filesystem.Storage.IsReady             |
+| SDL_WriteStorageFile          | ✅ Filesystem.Storage.WriteFile           |
+
+### I/O Streams
+NOTE: this implements stream so you can do any C# stream shenanigans 
+
+| Original Function    | Neko.SDL equivalent   |
+|----------------------|-----------------------|
+| SDL_CloseIO          | ✅ IOStream.Close      |
+| SDL_FlushIO          | ✅ IOStream.Flush      |
+| SDL_GetIOProperties  | ✅ IOStream.Properties |
+| SDL_GetIOSize        | ✅ IOStream.Length     |
+| SDL_GetIOStatus      | ✅ IOStream.Status     |
+| SDL_IOFromConstMem   | ❌ MISSING             |
+| SDL_IOFromDynamicMem | ❌ MISSING             |
+| SDL_IOFromFile       | ❌ MISSING             |
+| SDL_IOFromMem        | ❌ MISSING             |
+| SDL_IOprintf         | ❌ MISSING             |
+| SDL_IOvprintf        | ❌ MISSING             |
+| SDL_LoadFile         | ❌ MISSING             |
+| SDL_LoadFile_IO      | ❌ MISSING             |
+| SDL_OpenIO           | ✅ IOStream.Open       |
+| SDL_ReadIO           | ✅ IOStream.Read       |
+| SDL_ReadS16BE        | ❌ MISSING             |
+| SDL_ReadS16LE        | ❌ MISSING             |
+| SDL_ReadS32BE        | ❌ MISSING             |
+| SDL_ReadS32LE        | ❌ MISSING             |
+| SDL_ReadS64BE        | ❌ MISSING             |
+| SDL_ReadS64LE        | ❌ MISSING             |
+| SDL_ReadS8           | ❌ MISSING             |
+| SDL_ReadU16BE        | ❌ MISSING             |
+| SDL_ReadU16LE        | ❌ MISSING             |
+| SDL_ReadU32BE        | ❌ MISSING             |
+| SDL_ReadU32LE        | ❌ MISSING             |
+| SDL_ReadU64BE        | ❌ MISSING             |
+| SDL_ReadU64LE        | ❌ MISSING             |
+| SDL_ReadU8           | ❌ MISSING             |
+| SDL_SaveFile         | ❌ MISSING             |
+| SDL_SaveFile_IO      | ❌ MISSING             |
+| SDL_SeekIO           | ✅ IOStream.Seek       |
+| SDL_TellIO           | ✅ IOStream.Position   |
+| SDL_WriteIO          | ✅ IOStream.Write      |
+| SDL_WriteS16BE       | ❌ MISSING             |
+| SDL_WriteS16LE       | ❌ MISSING             |
+| SDL_WriteS32BE       | ❌ MISSING             |
+| SDL_WriteS32LE       | ❌ MISSING             |
+| SDL_WriteS64BE       | ❌ MISSING             |
+| SDL_WriteS64LE       | ❌ MISSING             |
+| SDL_WriteS8          | ❌ MISSING             |
+| SDL_WriteU16BE       | ❌ MISSING             |
+| SDL_WriteU16LE       | ❌ MISSING             |
+| SDL_WriteU32BE       | ❌ MISSING             |
+| SDL_WriteU32LE       | ❌ MISSING             |
+| SDL_WriteU64BE       | ❌ MISSING             |
+| SDL_WriteU64LE       | ❌ MISSING             |
+| SDL_WriteU8          | ❌ MISSING             |
+### Async I/O
+
+## Platform and CPU Information
+### Platform Detection
+### CPU Feature Detection
+### Compiler Intrinsics Detection
+### Byte Order and Byte Swapping
+### Bit Manipulation
+
+## Additional Functionality
+### Shared Object/DLL Management
+### Process
+| Original Function               | Neko.SDL equivalent  |
+|---------------------------------|----------------------|
+| SDL_CreateProcess               | ✅ Process.Create     |
+| SDL_CreateProcessWithProperties | ✅ Process.Create     |
+| SDL_DestroyProcess              | ✅ Process.Dispose    |
+| SDL_GetProcessInput             | ✅ Process.Input      |
+| SDL_GetProcessOutput            | ✅ Process.Output     |
+| SDL_GetProcessProperties        | ✅ Process.Properties |
+| SDL_KillProcess                 | ✅ Process.Kill       |
+| SDL_ReadProcess                 | ✅ Process.Read       |
+| SDL_WaitProcess                 | ✅ Process.Wait       |
+### Power Management Status
+### Message Boxes
+### File Dialogs
+### System Tray
+### Locale Info
+### Platform-specific Functionality
+### Standard Library Functionality
+### GUIDs
+### Miscellaneous
