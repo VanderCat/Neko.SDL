@@ -1,5 +1,6 @@
 namespace Neko.Sdl;
 
+//TODO: caching
 public abstract unsafe class SdlWrapper<T> : IDisposable where T : unmanaged {
     public T* Handle;
     public IntPtr Pointer => (IntPtr)Handle;

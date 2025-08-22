@@ -85,6 +85,8 @@ public sealed partial class Properties : IDisposable, IEnumerable<string> {
     public IEnumerator<string> GetEnumerator() =>
         new PropertiesEnumerator(this);
 
+    public void HasProperty(Utf8String name) => SDL_HasProperty(this, name);
+
     public override bool Equals(object? obj) {
         return obj is Properties properties && Equals(properties);
     }

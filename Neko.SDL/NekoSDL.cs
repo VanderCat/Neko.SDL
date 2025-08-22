@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using Neko.Sdl.Extra.System;
 
@@ -111,7 +113,7 @@ public static class NekoSDL {
     /// Version of SDL bindings were generated against
     /// </summary>
     public static int BindingsVersion => SDL_VERSION;
-    
+
     /// <summary>
     /// An arbitrary string, uniquely identifying the exact revision of the SDL library in use.
     /// </summary>
@@ -127,7 +129,16 @@ public static class NekoSDL {
     /// You shouldn't use this function for anything but logging it for debugging purposes. The string is not
     /// intended to be reliable in any way.
     /// </remarks>
-    public static string Revision => SDL_GetRevision();
+    public static string Revision {
+        get {
+            if (_cachedRevision is null) {
+                return _cachedRevision = SDL_GetRevision() ?? "";
+            }
+            return _cachedRevision;
+        }
+    }
+
+    private static string? _cachedRevision = null;
     
     /// <summary>
     /// Revision of SDL bindings were generated against
@@ -158,4 +169,34 @@ public static class NekoSDL {
     /// All this to say: this function can be useful, but you should definitely test it on every platform you target.
     /// </remarks>
     public static void OpenUrl(string url) => SDL_OpenURL(url).ThrowIfError();
+
+    /// <summary>
+    /// Whether this is the main thread
+    /// </summary>
+    /// <remarks>
+    /// On Apple platforms, the main thread is the thread that runs your program's main() entry point.
+    /// On other platforms, the main thread is the one that calls <see cref="Init"/> with <see cref="InitFlags.Video"/>,
+    /// which should usually be the one that runs your program's main() entry point.
+    /// </remarks>
+    public static bool IsMainThread => SDL_IsMainThread();
+
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
+    internal static unsafe void MainThreadCallback(nint userdata) {
+        using var fnPin = userdata.AsPin<Action>(true);
+        fnPin.Target();
+    }
+
+    /// <summary>
+    /// Call a function on the main thread during event processing
+    /// </summary>
+    /// <param name="callback">the callback to call on the main thread</param>
+    /// <param name="wait">true to wait for the callback to complete, false to return immediately</param>
+    /// <returns></returns>
+    /// <remarks>
+    /// If this is called on the main thread, the callback is executed immediately. If this is called on another thread, this callback is queued for execution on the main thread during event processing.
+    /// <br/><br/>
+    /// Be careful of deadlocks when using this functionality. You should not have the main thread wait for the current thread while this function is being called with wait_complete true.
+    /// </remarks>
+    public static unsafe void RunOnMainThread(Action callback, bool wait = true) => 
+        SDL_RunOnMainThread(&MainThreadCallback, callback.Pin(GCHandleType.Normal).Pointer, wait).ThrowIfError();
 }

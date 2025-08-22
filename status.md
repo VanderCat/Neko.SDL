@@ -12,18 +12,18 @@ Not supported.
 
 ### Initialization and Shutdown
 
-| Original Function          | Neko.SDL equivalent     |
-|----------------------------|-------------------------|
-| SDL_GetAppMetadataProperty | ✅ AppMetadata           |
-| SDL_Init                   | ✅ NekoSDL.Init          |
-| SDL_InitSubSystem          | ✅ NekoSDL.InitSubSystem |
-| SDL_IsMainThread           | ❌ Use .NET stuff        |
-| SDL_Quit                   | ✅ NekoSDL.Quit          |
-| SDL_QuitSubSystem          | ✅ NekoSDL.QuitSubSystem |
-| SDL_RunOnMainThread        | ❌ Use .NET stuff        |
-| SDL_SetAppMetadata         | ✅ AppMetadata           |
-| SDL_SetAppMetadataProperty | ✅ AppMetadata           |
-| SDL_WasInit                | ✅ NekoSDL.WasInit       |
+| Original Function          | Neko.SDL equivalent       |
+|----------------------------|---------------------------|
+| SDL_GetAppMetadataProperty | ✅ AppMetadata             |
+| SDL_Init                   | ✅ NekoSDL.Init            |
+| SDL_InitSubSystem          | ✅ NekoSDL.InitSubSystem   |
+| SDL_IsMainThread           | ✅ NekoSDL.IsMainThread    |
+| SDL_Quit                   | ✅ NekoSDL.Quit            |
+| SDL_QuitSubSystem          | ✅ NekoSDL.QuitSubSystem   |
+| SDL_RunOnMainThread        | ✅ NekoSDL.RunOnMainThread |
+| SDL_SetAppMetadata         | ✅ AppMetadata             |
+| SDL_SetAppMetadataProperty | ✅ AppMetadata             |
+| SDL_WasInit                | ✅ NekoSDL.WasInit         |
 
 ### Configuration Variables
 
@@ -54,7 +54,7 @@ Not supported.
 | SDL_GetPointerProperty            | ✅ Properties.GetPointer             |
 | SDL_GetPropertyType               | ✅ Properties.GetUnderlyingType      |
 | SDL_GetStringProperty             | ✅ Properties.SetString              |
-| SDL_HasProperty                   | ❌ MISSING                           |
+| SDL_HasProperty                   | ✅ Properties.HasProperty            |
 | SDL_LockProperties                | ✅ Properties.Lock                   |
 | SDL_SetBooleanProperty            | ✅ Properties.SetBoolean             |
 | SDL_SetFloatProperty              | ✅ Properties.SetFloat               |
@@ -66,38 +66,39 @@ Not supported.
 
 ### Error Handling
 
-| Original Function | Neko.SDL equivalent |
-|-------------------|---------------------|
-| SDL_ClearError    | ❌ MISSING           |
-| SDL_GetError      | new SdlException()  |
-| SDL_OutOfMemory   | ❌ MISSING           |
-| SDL_SetError      | ❌ MISSING           |
-| SDL_SetErrorV     | ❌ MISSING           |
+| Original Function | Neko.SDL equivalent        |
+|-------------------|----------------------------|
+| SDL_ClearError    | ✅ SdlException.Error       |
+| SDL_GetError      | ✅ SdlException.Error       |
+| SDL_OutOfMemory   | ✅ SdlException.OutOfMemory |
+| SDL_SetError      | ❌ VarArgs Not Supported    |
+| SDL_SetErrorV     | ✅ SdlException.Error       |
 
 ### Log
 
-| Original Function               | Neko.SDL equivalent |
-|---------------------------------|---------------------|
-| SDL_GetDefaultLogOutputFunction | ❌ MISSING           |
-| SDL_GetLogOutputFunction        | ❌ MISSING           |
-| SDL_GetLogPriority              | ❌ MISSING           |
-| SDL_Log                         | ❌ MISSING           |
-| SDL_LogCritical                 | ❌ MISSING           |
-| SDL_LogDebug                    | ❌ MISSING           |
-| SDL_LogError                    | ❌ MISSING           |
-| SDL_LogInfo                     | ❌ MISSING           |
-| SDL_LogMessage                  | ❌ MISSING           |
-| SDL_LogMessageV                 | ❌ MISSING           |
-| SDL_LogTrace                    | ❌ MISSING           |
-| SDL_LogVerbose                  | ❌ MISSING           |
-| SDL_LogWarn                     | ❌ MISSING           |
-| SDL_ResetLogPriorities          | ❌ MISSING           |
-| SDL_SetLogOutputFunction        | ❌ MISSING           |
-| SDL_SetLogPriorities            | ❌ MISSING           |
-| SDL_SetLogPriority              | ❌ MISSING           |
-| SDL_SetLogPriorityPrefix        | ❌ MISSING           |
+| Original Function               | Neko.SDL equivalent              |
+|---------------------------------|----------------------------------|
+| SDL_GetDefaultLogOutputFunction | ❌ Won't be added                 |
+| SDL_GetLogOutputFunction        | ✅ Logging.Log.OutputFunction     |
+| SDL_GetLogPriority              | ✅ Logging.Log.Priorities[]       |
+| SDL_Log                         | ✅ Logging.Log.LogApp             |
+| SDL_LogCritical                 | ✅ Logging.Log.Critical           |
+| SDL_LogDebug                    | ✅ Logging.Log.Debug              |
+| SDL_LogError                    | ✅ Logging.Log.Error              |
+| SDL_LogInfo                     | ✅ Logging.Log.Info               |
+| SDL_LogMessage                  | ❌ VarArgs Not Supported          |
+| SDL_LogMessageV                 | ✅ Logging.Log.Message            |
+| SDL_LogTrace                    | ✅ Logging.Log.Trace              |
+| SDL_LogVerbose                  | ✅ Logging.Log.Verbose            |
+| SDL_LogWarn                     | ✅ Logging.Log.Warn               |
+| SDL_ResetLogPriorities          | ✅ Logging.Log.Priorities.Reset() |
+| SDL_SetLogOutputFunction        | ✅ Logging.Log.OutputFunction     |
+| SDL_SetLogPriorities            | ✅ Logging.Log.Priorities.Set()   |
+| SDL_SetLogPriority              | ✅ Logging.Log.Priorities[]       |
+| SDL_SetLogPriorityPrefix        | ✅ Logging.Log.SetPriorityPrefix  |
 
 ### Assertions
+missing in ppy.SDL3, probably not bundled with release build, so no assertiona is available, use C# native stuff
 
 | Original Function              | Neko.SDL equivalent |
 |--------------------------------|---------------------|
