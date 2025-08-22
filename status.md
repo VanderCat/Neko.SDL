@@ -505,8 +505,75 @@ missing in ppy.SDL3, probably not bundled with release build, so no assertiona i
 
 ## Threads
 ### Thread Management
+Note: probably unnecessary to use this vs native C# threads, be sure to call CleanupTLS manually if use C# threads,
+as noted in documentation
+
+| Original Function              | Neko.SDL equivalent           |
+|--------------------------------|-------------------------------|
+| SDL_CleanupTLS                 | ✅ Threading.Thread.CleanupTLS |
+| SDL_CreateThread               | ✅ Threading.Thread.Create     |
+| SDL_CreateThreadWithProperties | ✅ Threading.Thread.Create     |
+| SDL_DetachThread               | ✅ Threading.Thread.Dispose    |
+| SDL_GetCurrentThreadID         | ✅ Threading.Thread.Id         |
+| SDL_GetThreadID                | ✅ Threading.Thread.GetId      |
+| SDL_GetThreadName              | ✅ Threading.Thread.Name       |
+| SDL_GetThreadState             | ✅ Threading.Thread.State      |
+| SDL_GetTLS                     | ✅ Threading.Thread.TLS        |
+| SDL_SetCurrentThreadPriority   | ✅ Threading.Thread.Priority   |
+| SDL_SetTLS                     | ✅ Threading.Thread.TLS        |
+| SDL_WaitThread                 | ✅ Threading.Thread.Wait       |
+
 ### Thread Synchronization Primitives
+| Original Function           | Neko.SDL equivalent                  |
+|-----------------------------|--------------------------------------|
+| SDL_BroadcastCondition      | ✅ Threading.Condition.Broadcast      |
+| SDL_CreateCondition         | ✅ Threading.Condition.Create         |
+| SDL_CreateMutex             | ✅ Threading.Mutex.Create             |
+| SDL_CreateRWLock            | ✅ Threading.RWLock.Create            |
+| SDL_CreateSemaphore         | ✅ Threading.Semaphore.Create         |
+| SDL_DestroyCondition        | ✅ Threading.Condition.Dispose        |
+| SDL_DestroyMutex            | ✅ Threading.Mutex.Dispose            |
+| SDL_DestroyRWLock           | ✅ Threading.RWLock.Dispose           |
+| SDL_DestroySemaphore        | ✅ Threading.Semaphore.Dispose        |
+| SDL_GetSemaphoreValue       | ✅ Threading.Semaphore.Value          |
+| SDL_LockMutex               | ✅ Threading.Mutex.Lock               |
+| SDL_LockRWLockForReading    | ✅ Threading.RWLock.LockForReading    |
+| SDL_LockRWLockForWriting    | ✅ Threading.RWLock.LockForWriting    |
+| SDL_SetInitialized          | ✅ Threading.InitState.SetInitialized |
+| SDL_ShouldInit              | ✅ Threading.InitState.ShouldInit     |
+| SDL_ShouldQuit              | ✅ Threading.InitState.ShouldQuit     |
+| SDL_SignalCondition         | ✅ Threading.Condition.Signal         |
+| SDL_SignalSemaphore         | ✅ Threading.Semaphore.Signal         |
+| SDL_TryLockMutex            | ✅ Threading.Mutex.TryLock            |
+| SDL_TryLockRWLockForReading | ✅ Threading.RWLock.TryLockForReading |
+| SDL_TryLockRWLockForWriting | ✅ Threading.RWLock.TryLockForWriting |
+| SDL_TryWaitSemaphore        | ✅ Threading.Semaphore.TryWait        |
+| SDL_UnlockMutex             | ✅ Threading.Mutex.Unlock             |
+| SDL_UnlockRWLock            | ✅ Threading.RWLock.Unlock            |
+| SDL_WaitCondition           | ✅ Threading.Condition.Wait           |
+| SDL_WaitConditionTimeout    | ✅ Threading.Condition.WaitTimeout    |
+| SDL_WaitSemaphore           | ✅ Threading.Semaphore.Wait           |
+| SDL_WaitSemaphoreTimeout    | ✅ Threading.Semaphore.WaitTimeout    |
+
 ### Atomic Operations
+| Original Function                | Neko.SDL equivalent                            |
+|----------------------------------|------------------------------------------------|
+| SDL_AddAtomicInt                 | ✅ Threading.Atomic.AtomicInt.Add               |
+| SDL_CompareAndSwapAtomicInt      | ✅ Threading.Atomic.AtomicInt.CompareAndSwap    |
+| SDL_CompareAndSwapAtomicPointer  | ✅ Threading.Atomic.AtomicIntPtr.CompareAndSwap |
+| SDL_CompareAndSwapAtomicU32      | ✅ Threading.Atomic.AtomicUint.CompareAndSwap   |
+| SDL_GetAtomicInt                 | ✅ Threading.Atomic.AtomicInt.Value             |
+| SDL_GetAtomicPointer             | ✅ Threading.Atomic.AtomicIntPtr.Value          |
+| SDL_GetAtomicU32                 | ✅ Threading.Atomic.AtomicU32.Value             |
+| SDL_LockSpinlock                 | ✅ Threading.Atomic.Spinlock.Lock               |
+| SDL_MemoryBarrierAcquireFunction | ✅ Threading.Atomic.MemoryBarrier.Acquire       |
+| SDL_MemoryBarrierReleaseFunction | ✅ Threading.Atomic.MemoryBarrier.Release       |
+| SDL_SetAtomicInt                 | ✅ Threading.Atomic.AtomicInt.Value             |
+| SDL_SetAtomicPointer             | ✅ Threading.Atomic.AtomicIntPtr.Value          |
+| SDL_SetAtomicU32                 | ✅ Threading.Atomic.AtomicUint.Value            |
+| SDL_TryLockSpinlock              | ✅ Threading.Atomic.Atomic.TryLock              |
+| SDL_UnlockSpinlock               | ✅ Threading.Atomic.Atomic.Unlock               |
+
 
 ## File and I/O Abstractions
 ### Filesystem Access
