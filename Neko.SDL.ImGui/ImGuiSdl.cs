@@ -276,6 +276,8 @@ public static unsafe class ImGuiSdl {
     public static ImGuiViewportPtr GetImGuiViewport(this Window window) =>
         GetViewportForWindowID(window.Id);
 
+    public static bool ProcessEvent(Event e) => ProcessEvent(e.Handle);
+
     // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
     // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application, or clear/overwrite your copy of the mouse data.
     // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application, or clear/overwrite your copy of the keyboard data.

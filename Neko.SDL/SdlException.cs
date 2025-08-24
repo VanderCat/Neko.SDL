@@ -27,7 +27,8 @@ public class SdlException(string message = "") : Exception(message + "\n" + Erro
                 SDL_ClearError();
                 return;
             }
-            SDL_SetErrorV(value.Replace("%", "%%"), null);
+            var handle = new RuntimeArgumentHandle();
+            SDL_SetErrorV(value.Replace("%", "%%"), (byte*)&handle);
         }
     }
 

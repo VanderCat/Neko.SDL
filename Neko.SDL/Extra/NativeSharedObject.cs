@@ -32,6 +32,12 @@ namespace Neko.Sdl.Extra;
 /// </ul>
 /// </summary>
 public unsafe partial class NativeSharedObject : SdlWrapper<SDL_SharedObject> {
+    
+    /// <inheritdoc cref="LoadFunction"/>
+    public IntPtr this[string name] {
+        get => LoadFunction(name);
+    }
+    
     /// <summary>
     /// Dynamically load a shared object
     /// </summary>

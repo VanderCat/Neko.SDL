@@ -1,6 +1,7 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
+using Neko.Sdl.EntryPoints;
 using Neko.Sdl.Extra.System;
 
 namespace Neko.Sdl;
@@ -199,4 +200,48 @@ public static class NekoSDL {
     /// </remarks>
     public static unsafe void RunOnMainThread(Action callback, bool wait = true) => 
         SDL_RunOnMainThread(&MainThreadCallback, callback.Pin(GCHandleType.Normal).Pointer, wait).ThrowIfError();
+
+    /// <summary>
+    /// Run SDL3 Callbacks
+    /// </summary>
+    /// <param name="args">program args</param>
+    /// <param name="application">callback implementation</param>
+    /// <remarks>
+    /// This function uses native callback system, as you would expect. The downside is for some reason Rider's debugger freaks out and
+    /// crashes the app on any Exception even enclosed in try catch block, making this feature essentially useless if you don't want to
+    /// compromise on debugger. That said, in future there may be a managed implementation of this callback system, without this downside. 
+    /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void EnterApp(string[] args, IApplication application) => 
+        EntryPointImpl.Enter(application, args);
+    
+    /// <summary>
+    /// Initializes and launches an SDL application, by doing platform-specific initialization before calling your
+    /// mainFunction and cleanups after it returns, if that is needed for a specific platform,
+    /// otherwise it just calls mainFunction.
+    /// </summary>
+    /// <param name="args">program args</param>
+    /// <param name="main">main function</param>
+    /// <remarks>
+    /// This has same downsides as <see cref="EnterApp"/>, for same reasons. You probably won't ever need this, you can write your own
+    /// platform support code, but this is here just in case.
+    /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Run(string[] args, AppMainFunction main) => 
+        EntryPointImpl.Run(args, main);
+    
+    /// <summary>
+    /// Initializes and launches an SDL application, by doing platform-specific initialization before calling <see cref="EnterApp"/>
+    /// and cleanups after it returns, if that is needed for a specific platform,
+    /// otherwise it just calls <see cref="EnterApp"/>.
+    /// </summary>
+    /// <param name="args">program args</param>
+    /// <param name="app">callback implementation</param>
+    /// <remarks>
+    /// This has same downsides as <see cref="EnterApp"/>, for same reasons. You probably won't ever need this, you can write your own
+    /// platform support code, but this is here just in case.
+    /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Run(string[] args, IApplication app) => 
+        EntryPointImpl.RunCallback(args, app);
 }

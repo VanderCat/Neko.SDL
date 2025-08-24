@@ -49,7 +49,8 @@ public static class Log {
     /// <param name="priority">the priority of the message</param>
     /// <param name="text">a text of the message</param>
     public static unsafe void Message(int category, LogPriority priority, string text) {
-        SDL_LogMessageV(category, (SDL_LogPriority)priority, text.Replace("%", "%%"), null);
+        var iter = new RuntimeArgumentHandle();
+        SDL_LogMessageV(category, (SDL_LogPriority)priority, text.Replace("%", "%%"), (byte*)&iter);
     }
 
     /// <summary>

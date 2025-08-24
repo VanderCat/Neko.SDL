@@ -1,3 +1,15 @@
+# quick ref
+1. Basics - **99%** (All essential stuff done)
+2. Video - ~50%
+3. Input - Unknown
+4. Force Feeback - ~0%
+5. Audio - ~0%
+6. GPU - ~0%
+7. Threads - ~100%
+8. Filesystem - ~75%
+9. Platform and CPU Information - Unknown
+10. Additional Functionality - ~30%
+
 # Curently wrapped functions
 
 - ✅ - Ready to use
@@ -7,8 +19,22 @@
 ## Basics
 
 ### Application entry points
+Limited support, see remarks section of NekoSDL.EnterApp
 
-Not supported.
+| Original Function         | Neko.SDL equivalent    |
+|---------------------------|------------------------|
+| SDL_AppEvent              | ✅ IApplication.Event   |
+| SDL_AppInit               | ✅ IApplication.Init    |
+| SDL_AppIterate            | ✅ IApplication.Iterate |
+| SDL_AppQuit               | ✅ IApplication.Quit    |
+| SDL_EnterAppMainCallbacks | ✅ NekoSDL.EnterApp     |
+| SDL_GDKSuspendComplete    | ❌ MISSING              |
+| SDL_main                  | ❌ NotSupported         |
+| SDL_RegisterApp           | ❌ MISSING              |
+| SDL_RunApp                | ✅ NekoSDL.Run          |
+| SDL_SetMainReady          | ❌ MISSING              |
+| SDL_UnregisterApp         | ❌ MISSING              |
+
 
 ### Initialization and Shutdown
 
@@ -574,9 +600,22 @@ as noted in documentation
 | SDL_TryLockSpinlock              | ✅ Threading.Atomic.Atomic.TryLock              |
 | SDL_UnlockSpinlock               | ✅ Threading.Atomic.Atomic.Unlock               |
 
-
 ## File and I/O Abstractions
 ### Filesystem Access
+| Original Function        | Neko.SDL equivalent                        |
+|--------------------------|--------------------------------------------|
+| SDL_CopyFile             | ✅ Filesystem.Filesystem.CopyFile           |
+| SDL_CreateDirectory      | ✅ Filesystem.Filesystem.CreateDirectory    |
+| SDL_EnumerateDirectory   | ✅ Filesystem.Filesystem.EnumerateDirectory |
+| SDL_GetBasePath          | ✅ Filesystem.Filesystem.BasePath           |
+| SDL_GetCurrentDirectory  | ✅ Filesystem.Filesystem.CurrentDirectory   |
+| SDL_GetPathInfo          | ✅ Filesystem.Filesystem.GetPathInfo        |
+| SDL_GetPrefPath          | ✅ Filesystem.Filesystem.GetPrefPath        |
+| SDL_GetUserFolder        | ✅ Filesystem.Filesystem.GetUserFolder      |
+| SDL_GlobDirectory        | ✅ Filesystem.Filesystem.GlobDirectory      |
+| SDL_RemovePath           | ✅ Filesystem.Filesystem.RemovePath         |
+| SDL_RenamePath           | ✅ Filesystem.Filesystem.RenamePath         |
+
 ### Storage Abstraction
 | Original Function             | Neko.SDL equivalent                      |
 |-------------------------------|------------------------------------------|
@@ -601,56 +640,56 @@ as noted in documentation
 ### I/O Streams
 NOTE: this implements stream so you can do any C# stream shenanigans 
 
-| Original Function    | Neko.SDL equivalent   |
-|----------------------|-----------------------|
-| SDL_CloseIO          | ✅ IOStream.Close      |
-| SDL_FlushIO          | ✅ IOStream.Flush      |
-| SDL_GetIOProperties  | ✅ IOStream.Properties |
-| SDL_GetIOSize        | ✅ IOStream.Length     |
-| SDL_GetIOStatus      | ✅ IOStream.Status     |
-| SDL_IOFromConstMem   | ❌ MISSING             |
-| SDL_IOFromDynamicMem | ❌ MISSING             |
-| SDL_IOFromFile       | ❌ MISSING             |
-| SDL_IOFromMem        | ❌ MISSING             |
-| SDL_IOprintf         | ❌ MISSING             |
-| SDL_IOvprintf        | ❌ MISSING             |
-| SDL_LoadFile         | ❌ MISSING             |
-| SDL_LoadFile_IO      | ❌ MISSING             |
-| SDL_OpenIO           | ✅ IOStream.Open       |
-| SDL_ReadIO           | ✅ IOStream.Read       |
-| SDL_ReadS16BE        | ❌ MISSING             |
-| SDL_ReadS16LE        | ❌ MISSING             |
-| SDL_ReadS32BE        | ❌ MISSING             |
-| SDL_ReadS32LE        | ❌ MISSING             |
-| SDL_ReadS64BE        | ❌ MISSING             |
-| SDL_ReadS64LE        | ❌ MISSING             |
-| SDL_ReadS8           | ❌ MISSING             |
-| SDL_ReadU16BE        | ❌ MISSING             |
-| SDL_ReadU16LE        | ❌ MISSING             |
-| SDL_ReadU32BE        | ❌ MISSING             |
-| SDL_ReadU32LE        | ❌ MISSING             |
-| SDL_ReadU64BE        | ❌ MISSING             |
-| SDL_ReadU64LE        | ❌ MISSING             |
-| SDL_ReadU8           | ❌ MISSING             |
-| SDL_SaveFile         | ❌ MISSING             |
-| SDL_SaveFile_IO      | ❌ MISSING             |
-| SDL_SeekIO           | ✅ IOStream.Seek       |
-| SDL_TellIO           | ✅ IOStream.Position   |
-| SDL_WriteIO          | ✅ IOStream.Write      |
-| SDL_WriteS16BE       | ❌ MISSING             |
-| SDL_WriteS16LE       | ❌ MISSING             |
-| SDL_WriteS32BE       | ❌ MISSING             |
-| SDL_WriteS32LE       | ❌ MISSING             |
-| SDL_WriteS64BE       | ❌ MISSING             |
-| SDL_WriteS64LE       | ❌ MISSING             |
-| SDL_WriteS8          | ❌ MISSING             |
-| SDL_WriteU16BE       | ❌ MISSING             |
-| SDL_WriteU16LE       | ❌ MISSING             |
-| SDL_WriteU32BE       | ❌ MISSING             |
-| SDL_WriteU32LE       | ❌ MISSING             |
-| SDL_WriteU64BE       | ❌ MISSING             |
-| SDL_WriteU64LE       | ❌ MISSING             |
-| SDL_WriteU8          | ❌ MISSING             |
+| Original Function    | Neko.SDL equivalent              |
+|----------------------|----------------------------------|
+| SDL_CloseIO          | ✅ IOStream.Close                 |
+| SDL_FlushIO          | ✅ IOStream.Flush                 |
+| SDL_GetIOProperties  | ✅ IOStream.Properties            |
+| SDL_GetIOSize        | ✅ IOStream.Length                |
+| SDL_GetIOStatus      | ✅ IOStream.Status                |
+| SDL_IOFromConstMem   | 🚧 IOStream.FromConstMem         |
+| SDL_IOFromDynamicMem | 🚧 IOStream.FromDynamicMem       |
+| SDL_IOFromFile       | 🚧 IOStream.FromFile             |
+| SDL_IOFromMem        | ❌ IOStream.FromMem               |
+| SDL_IOprintf         | ❌ Not Supported                  |
+| SDL_IOvprintf        | ❌ Not Supported                  |
+| SDL_LoadFile         | ✅ Filesystem.Filesystem.LoadFile |
+| SDL_LoadFile_IO      | ✅ IOStream.LoadFile              |
+| SDL_OpenIO           | ✅ IOStream.Open                  |
+| SDL_ReadIO           | ✅ IOStream.Read                  |
+| SDL_ReadS16BE        | ✅ IOStream.ReadS16BE             |
+| SDL_ReadS16LE        | ✅ IOStream.ReadS16LE             |
+| SDL_ReadS32BE        | ✅ IOStream.ReadS32BE             |
+| SDL_ReadS32LE        | ✅ IOStream.ReadS32LE             |
+| SDL_ReadS64BE        | ✅ IOStream.ReadS64BE             |
+| SDL_ReadS64LE        | ✅ IOStream.ReadS64LE             |
+| SDL_ReadS8           | ✅ IOStream.ReadS8                |
+| SDL_ReadU16BE        | ✅ IOStream.ReadU16BE             |
+| SDL_ReadU16LE        | ✅ IOStream.ReadU16LE             |
+| SDL_ReadU32BE        | ✅ IOStream.ReadU32BE             |
+| SDL_ReadU32LE        | ✅ IOStream.ReadU32LE             |
+| SDL_ReadU64BE        | ✅ IOStream.ReadU64BE             |
+| SDL_ReadU64LE        | ✅ IOStream.ReadU64LE             |
+| SDL_ReadU8           | ✅ IOStream.ReadU8                |
+| SDL_SaveFile         | ✅ Filesystem.Filesystem.SaveFile |
+| SDL_SaveFile_IO      | ✅ IOStream.SaveFile              |
+| SDL_SeekIO           | ✅ IOStream.Seek                  |
+| SDL_TellIO           | ✅ IOStream.Position              |
+| SDL_WriteIO          | ✅ IOStream.Write                 |
+| SDL_WriteS16BE       | ✅ IOStream.WriteS16BE            |
+| SDL_WriteS16LE       | ✅ IOStream.WriteS16LE            |
+| SDL_WriteS32BE       | ✅ IOStream.WriteS32BE            |
+| SDL_WriteS32LE       | ✅ IOStream.WriteS32LE            |
+| SDL_WriteS64BE       | ✅ IOStream.WriteS64BE            |
+| SDL_WriteS64LE       | ✅ IOStream.WriteS64LE            |
+| SDL_WriteS8          | ✅ IOStream.WriteS8               |
+| SDL_WriteU16BE       | ✅ IOStream.WriteU16BE            |
+| SDL_WriteU16LE       | ✅ IOStream.WriteU16LE            |
+| SDL_WriteU32BE       | ✅ IOStream.WriteU32BE            |
+| SDL_WriteU32LE       | ✅ IOStream.WriteU32LE            |
+| SDL_WriteU64BE       | ✅ IOStream.WriteU64BE            |
+| SDL_WriteU64LE       | ✅ IOStream.WriteU64LE            |
+| SDL_WriteU8          | ✅ IOStream.WriteU8               |
 ### Async I/O
 
 ## Platform and CPU Information
@@ -662,6 +701,12 @@ NOTE: this implements stream so you can do any C# stream shenanigans
 
 ## Additional Functionality
 ### Shared Object/DLL Management
+| Original Function  | Neko.SDL equivalent                   |
+|--------------------|---------------------------------------|
+| SDL_LoadFunction   | Extra.NativeSharedObject.Load         |
+| SDL_LoadObject     | Extra.NativeSharedObject.LoadFunction |
+| SDL_UnloadObject   | Extra.NativeSharedObject.Dispose      |
+
 ### Process
 | Original Function               | Neko.SDL equivalent  |
 |---------------------------------|----------------------|

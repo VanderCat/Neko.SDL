@@ -1,5 +1,7 @@
 ﻿using System.Drawing;
+using System.Globalization;
 using System.Numerics;
+using System.Reflection;
 using ImGuiNET;
 using Neko.Sdl.ImGuiBackend;
 using Neko.Sdl.Video;
@@ -10,13 +12,14 @@ namespace Neko.Sdl.Sample;
 internal class Program {
     public static unsafe void Main(string[] args) {
         // Setup SDL
+        AppMetadata.Set(AppDomain.CurrentDomain.FriendlyName, Assembly.GetEntryAssembly()!.GetName().Version!.ToString(), "nekosdl.testapp");
         NekoSDL.Init(InitFlags.Video | InitFlags.Gamepad);
 
         // Create window with SDL_Renderer graphics context
         const WindowFlags windowFlags = WindowFlags.Opengl | WindowFlags.Resizable | WindowFlags.Hidden;
         var window = new Window(1280, 720, "Dear ImGui SDL3+SDL_Renderer example", windowFlags);
         var renderer = window.CreateRenderer();
-        renderer.VSync = 1;
+        renderer.VSync = 0;
         window.Position = new Point((int)SDL3.SDL_WINDOWPOS_CENTERED, (int)SDL3.SDL_WINDOWPOS_CENTERED);
         window.Show();
 
@@ -95,6 +98,10 @@ internal class Program {
 
                 ImGui.Text("This is some useful text.");               // Display some text (you can use a format strings too)
                 ImGui.Checkbox("Demo Window", ref showDemoWindow);      // Edit bools storing our window open/close state
+                if (ImGui.Button("Toggle Vsync")) {
+                    var vsync = renderer.VSync;
+                    renderer.VSync = vsync == 0 ? 1 : 0;
+                }
                 ImGui.Checkbox("Another Window", ref showAnotherWindow);
 
                 ImGui.SliderFloat("float", ref f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
@@ -103,9 +110,37 @@ internal class Program {
                 if (ImGui.Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
                     counter++;
                 ImGui.SameLine();
-                ImGui.Text($"counter = {counter}");
-                ImGui.Text($"Running SDL {NekoSDL.Version} ({NekoSDL.Revision}) on bindings made for {NekoSDL.BindingsVersion} ({NekoSDL.BindingsRevision})");
-                ImGui.Text($"Application average {1000.0f / io.Framerate:F3} ms/frame ({io.Framerate:F1} FPS)");
+                ImGui.Text("counter = ");
+                ImGui.SameLine();
+                ImGui.Text(counter.ToString());
+                ImGui.Text("Running SDL ");
+                ImGui.SameLine();
+                ImGui.Text(NekoSDL.Version.ToString());
+                ImGui.SameLine();
+                ImGui.Text("(");
+                ImGui.SameLine();
+                ImGui.Text(NekoSDL.Revision);
+                ImGui.SameLine();
+                ImGui.Text(")");
+                ImGui.SameLine();
+                ImGui.Text("on bindings made for ");
+                ImGui.SameLine();
+                ImGui.Text(NekoSDL.BindingsVersion.ToString());
+                ImGui.SameLine();
+                ImGui.Text("(");
+                ImGui.SameLine();
+                ImGui.Text(NekoSDL.BindingsRevision);
+                ImGui.SameLine();
+                ImGui.Text(")");
+                ImGui.Text("Application average ");
+                ImGui.SameLine();
+                ImGui.Text((1000.0f / io.Framerate).ToString(CultureInfo.InvariantCulture));
+                ImGui.SameLine();
+                ImGui.Text(" ms/frame (");
+                ImGui.SameLine();
+                ImGui.Text(io.Framerate.ToString(CultureInfo.InvariantCulture));
+                ImGui.SameLine();
+                ImGui.Text(" FPS)");
                 ImGui.End();
             }
 

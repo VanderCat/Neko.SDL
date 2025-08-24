@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+
 namespace Neko.Sdl.Threading;
 
 /// <remarks>
@@ -83,4 +85,35 @@ public unsafe partial class Mutex : SdlWrapper<SDL_Mutex> {
     /// thread, and doing so results in undefined behavior.
     /// </remarks>
     public void Unlock() => SDL_UnlockMutex(this);
+
+    /// <summary>
+    /// Lock the mutex and unlock automatically on scope end
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// var mutex = Mutex.Create();
+    /// //...
+    /// using (mutex.ScopeLock()) {
+    ///     //do stuff
+    /// }
+    /// </code>
+    /// </example>
+    public Scope ScopeLock() {
+        Lock();
+        return new Scope(this);
+    }
+
+    public ref struct Scope {
+        private Mutex _mutex;
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal Scope(Mutex mutex) {
+            _mutex = mutex;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Dispose() {
+            _mutex.Unlock();
+        }
+    }
 }
