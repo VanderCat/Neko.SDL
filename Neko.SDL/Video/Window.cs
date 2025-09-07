@@ -8,7 +8,7 @@ using Neko.Sdl.Extra;
 namespace Neko.Sdl.Video;
 
 public unsafe partial class Window : SdlWrapper<SDL_Window> {
-    public Renderer Renderer;
+    public Renderer? Renderer;
     private readonly bool Initialized;
     protected Pin<Window> _pin;
 
@@ -810,7 +810,7 @@ public unsafe partial class Window : SdlWrapper<SDL_Window> {
     private const int eventsPerPeep = 64;
     private readonly SDL_Event[] events = new SDL_Event[eventsPerPeep];
 
-    protected void PollEvents() {
+    public void PollEvents() {
         SDL_PumpEvents();
         int eventsRead;
         do {
@@ -824,9 +824,11 @@ public unsafe partial class Window : SdlWrapper<SDL_Window> {
         base.Dispose();
         __windowIdCache.Remove(Id);
         if (Initialized) {
-            SDL_DestroyWindow(Handle);
-            SDL_DestroyRenderer(Renderer);
+            Destroy();
+            Renderer?.Dispose();
         }
         _pin.Dispose();
     }
+    
+    internal void Destroy() => SDL_DestroyWindow(Handle);
 }

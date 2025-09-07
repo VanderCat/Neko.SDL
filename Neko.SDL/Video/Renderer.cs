@@ -31,9 +31,10 @@ public sealed unsafe partial class Renderer : SdlWrapper<SDL_Renderer> {
         SDL_CreateTextureWithProperties(Handle, (SDL_PropertiesID)properties.Id);
 
     public override void Dispose() {
+        Destroy();
         base.Dispose();
-        SDL_DestroyRenderer(Handle);
     }
+    internal void Destroy() => SDL_DestroyRenderer(Handle);
     
     public void Flush() => SDL_FlushRenderer(Handle).ThrowIfError();
 
