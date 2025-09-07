@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using Neko.Sdl.Events;
 using Neko.Sdl.Extra;
 
 namespace Neko.Sdl.Video;
@@ -350,14 +351,14 @@ public unsafe partial class Window : SdlWrapper<SDL_Window> {
         return true;
     }
 
-    public Action<SDL_Event>? EventFilter;
+    public Action<Event>? EventFilter;
 
     private bool HandleEventFromFilter(SDL_Event* e) {
         switch (e->Type) {
             case SDL_EventType.SDL_EVENT_QUIT:
                 return OnQuit(e->quit);
             default:
-                EventFilter?.Invoke(*e);
+                EventFilter?.Invoke(e);
                 break;
         }
 

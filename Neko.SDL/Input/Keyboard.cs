@@ -7,4 +7,9 @@ public static unsafe class Keyboard {
         var ptr = SDL_GetKeyboardFocus();
         return ptr is null ? null : Window.GetFromPtr(ptr);
     }
+
+    public static Keymod ModState {
+        get => (Keymod)SDL_GetModState();
+        set => SDL_SetModState((SDL_Keymod)value);
+    }
 }

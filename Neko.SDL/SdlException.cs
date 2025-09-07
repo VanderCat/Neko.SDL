@@ -32,6 +32,8 @@ public class SdlException(string message = "") : Exception(message + "\n" + Erro
         }
     }
 
+    public static bool HasError => Error is not null && Error != "";
+
     /// <summary>
     /// Set an error indicating that memory allocation failed
     /// </summary>
