@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace Neko.Sdl;
 
-public class Pin<T> : IDisposable {
+public sealed class Pin<T> : IDisposable {
     private GCHandle _handle;
     public IntPtr Addr => _handle.AddrOfPinnedObject();
     public IntPtr Pointer => GCHandle.ToIntPtr(_handle);
