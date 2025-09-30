@@ -26,10 +26,11 @@ internal class Program {
         // Setup Dear ImGui context
         ImGui.CreateContext();
         var io = ImGui.GetIO();
-        io.ConfigFlags |= ImGuiConfigFlags.NavEnableKeyboard;     // Enable Keyboard Controls
-        io.ConfigFlags |= ImGuiConfigFlags.NavEnableGamepad;      // Enable Gamepad Controls
+        io.ConfigFlags |= ImGuiConfigFlags.NavEnableKeyboard; // Enable Keyboard Controls
+        io.ConfigFlags |= ImGuiConfigFlags.NavEnableGamepad;  // Enable Gamepad Controls
+        io.ConfigFlags |= ImGuiConfigFlags.ViewportsEnable;
 
-        // Setup Dear ImGui style
+    // Setup Dear ImGui style
         ImGui.StyleColorsDark();
         //ImGui.StyleColorsLight();
 
@@ -160,6 +161,11 @@ internal class Program {
             renderer.Clear();
             ImGuiSdlRenderer.RenderDrawData(ImGui.GetDrawData(), renderer);
             renderer.Present();
+            if (io.ConfigFlags.HasFlag(ImGuiConfigFlags.ViewportsEnable)) {
+                ImGui.UpdatePlatformWindows();
+                ImGui.RenderPlatformWindowsDefault();
+                // TODO for OpenGL: restore current GL context.
+            }
         }
 
         // Cleanup

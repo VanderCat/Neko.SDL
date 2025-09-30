@@ -66,6 +66,7 @@ public static unsafe class ImGuiSdlRenderer {
         io.BackendRendererUserData = _pin.Pointer;
         ((ImGuiIO*)io)->BackendRendererName = (byte*)Marshal.StringToHGlobalAnsi("imgui_impl_nekosdlrenderer");
         io.BackendFlags |= ImGuiBackendFlags.RendererHasVtxOffset;  // We can honor the ImDrawCmd::VtxOffset field, allowing for large meshes.
+        //io.BackendFlags |= ImGuiBackendFlags.RendererHasTextures; // We can honor ImGuiPlatformIO::Textures[] requests during render. //imgui.net is too old
 
         _data.Renderer = renderer;
     }
@@ -75,6 +76,7 @@ public static unsafe class ImGuiSdlRenderer {
         if (_data == null)
             throw new InvalidOperationException("No renderer backend to shutdown, or already shutdown?");
         var io = ImGui.GetIO();
+        //var platformIo = ImGui.GetPlatformIO();
 
         DestroyDeviceObjects();
 
@@ -82,6 +84,8 @@ public static unsafe class ImGuiSdlRenderer {
         new Pin<Data>(io.BackendRendererUserData, true).Dispose();
         io.BackendRendererUserData = 0;
         io.BackendFlags &= ~ImGuiBackendFlags.RendererHasVtxOffset;
+        //io.BackendFlags &= ~(ImGuiBackendFlags.RendererHasVtxOffset | ImGuiBackendFlags.RendererHasTextures);
+        //platformIo.ClearRendererHandles();
     }
 
     private static void SetupRenderState(Renderer renderer) {
@@ -174,6 +178,13 @@ public static unsafe class ImGuiSdlRenderer {
 	    var fbHeight = (int)(drawData.DisplaySize.Y * renderScale.Y);
 	    if (fbWidth == 0 || fbHeight == 0)
 		    return;
+        
+        // Catch up with texture updates. Most of the times, the list will have 1 element with an OK status, aka nothing to do.
+        // (This almost always points to ImGui::GetPlatformIO().Textures[] but is part of ImDrawData to allow overriding or disabling texture updates).
+        // if (drawData.Textures != null)
+        //     for (var tex in drawData.Textures)
+        //         if (tex->Status != ImTextureStatus_OK)
+        //         ImGui_ImplSDLRenderer3_UpdateTexture(tex);
 
         // Backup SDL_Renderer state that will be modified to restore it afterwards
         var old = new BackupSdlRendererState {

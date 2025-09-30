@@ -50,7 +50,7 @@ public static unsafe class ImGuiSdl {
     //  [X] Platform: Clipboard support.
     //  [X] Platform: Mouse support. Can discriminate Mouse/TouchScreen.
     //  [X] Platform: Keyboard support. Since 1.87 we are using the io.AddKeyEvent() function. Pass ImGuiKey values to all key functions e.g. ImGui::IsKeyPressed(ImGuiKey.Space). [Legacy SDL_SCANCODE_* values are obsolete since 1.87 and not supported since 1.91.5]
-    //  [X] Platform: Gamepad support. Enabled with 'io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad'.
+    //  [X] Platform: Gamepad support.
     //  [X] Platform: Mouse cursor shape and visibility (ImGuiBackendFlags.HasMouseCursors). Disable with 'io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange'.
     //  [x] Platform: Multi-viewport support (multiple windows). Enable with 'io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable' -> the OS animation effect when window gets created/destroyed is problematic. SDL2 backend doesn't have issue.
     // Missing features or Issues:
@@ -77,6 +77,7 @@ public static unsafe class ImGuiSdl {
         public Cursor MouseLastCursor;
         public int MousePendingLeaveFrame;
         public bool MouseCanUseGlobalState;
+        public bool MouseCanUseCapture;
         public bool MouseCanReportHoveredViewport; // This is hard to use/unreliable on SDL so we'll set ImGuiBackendFlags_HasMouseHoveredViewport dynamically based on state.
 
         // Gamepad handling
@@ -127,6 +128,13 @@ public static unsafe class ImGuiSdl {
         TextInput.SetArea(window, r, 0);
         TextInput.Start(window);
         _backend.ImeWindow = window;
+        if (SDL_TextInputActive(window) && data->WantVisible == 1)
+            SDL_StartTextInput(window);
+    }
+
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
+    static bool PlatformOpenInShell(void* context, char* url) {
+        return SDL_OpenURL((byte*)url);
     }
 
     public static ImGuiKey KeyEventToImGuiKey(Keycode keycode, Scancode scancode)
@@ -169,17 +177,17 @@ public static unsafe class ImGuiSdl {
             case Keycode.Space: return ImGuiKey.Space;
             case Keycode.Return: return ImGuiKey.Enter;
             case Keycode.Escape: return ImGuiKey.Escape;
-            case Keycode.Apostrophe: return ImGuiKey.Apostrophe;
+            //case Keycode.Apostrophe: return ImGuiKey.Apostrophe;
             case Keycode.Comma: return ImGuiKey.Comma;
-            case Keycode.Minus: return ImGuiKey.Minus;
+            //case Keycode.Minus: return ImGuiKey.Minus;
             case Keycode.Period: return ImGuiKey.Period;
-            case Keycode.Slash: return ImGuiKey.Slash;
+            //case Keycode.Slash: return ImGuiKey.Slash;
             case Keycode.Semicolon: return ImGuiKey.Semicolon;
-            case Keycode.Equals: return ImGuiKey.Equal;
-            case Keycode.Leftbracket: return ImGuiKey.LeftBracket;
-            case Keycode.Backslash: return ImGuiKey.Backslash;
-            case Keycode.Rightbracket: return ImGuiKey.RightBracket;
-            case Keycode.Grave: return ImGuiKey.GraveAccent;
+            //case Keycode.Equals: return ImGuiKey.Equal;
+            //case Keycode.Leftbracket: return ImGuiKey.LeftBracket;
+            //case Keycode.Backslash: return ImGuiKey.Backslash;
+            //case Keycode.Rightbracket: return ImGuiKey.RightBracket;
+            //case Keycode.Grave: return ImGuiKey.GraveAccent;
             case Keycode.Capslock: return ImGuiKey.CapsLock;
             case Keycode.Scrolllock: return ImGuiKey.ScrollLock;
             case Keycode.Numlockclear: return ImGuiKey.NumLock;
@@ -256,6 +264,21 @@ public static unsafe class ImGuiSdl {
             case Keycode.F24: return ImGuiKey.F24;
             case Keycode.AcBack: return ImGuiKey.AppBack;
             case Keycode.AcForward: return ImGuiKey.AppForward;
+        }
+        // Fallback to scancode
+        switch (scancode) {
+            case Scancode.Grave: return ImGuiKey.GraveAccent;
+            case Scancode.Minus: return ImGuiKey.Minus;
+            case Scancode.Equals: return ImGuiKey.Equal;
+            case Scancode.Leftbracket: return ImGuiKey.LeftBracket;
+            case Scancode.Rightbracket: return ImGuiKey.RightBracket;
+            //case Scancode.Nonusbackslash: return ImGuiKey.Oem102;
+            case Scancode.Backslash: return ImGuiKey.Backslash;
+            case Scancode.Semicolon: return ImGuiKey.Semicolon;
+            case Scancode.Apostrophe: return ImGuiKey.Apostrophe;
+            case Scancode.Comma: return ImGuiKey.Comma;
+            case Scancode.Period: return ImGuiKey.Period;
+            case Scancode.Slash: return ImGuiKey.Slash;
         }
         return ImGuiKey.None;
     }
@@ -365,6 +388,9 @@ public static unsafe class ImGuiSdl {
                 return true;
             case EventType.WindowFocusGained:
             case EventType.WindowFocusLost:
+                viewport = GetViewportForWindowID((uint)e->text.windowID);
+                if (viewport.NativePtr is null)
+                    return false;
                 io.AddFocusEvent(type is EventType.WindowFocusGained);
                 return true;
             case EventType.WindowCloseRequested:
@@ -411,20 +437,7 @@ public static unsafe class ImGuiSdl {
         if (io.BackendPlatformUserData != 0)
 #pragma warning restore CS0472 // The result of the expression is always the same since a value of this type is never equal to 'null'
             throw new InvalidOperationException("Already initialized a platform backend!");
-
-        // Check and store if we are on a SDL backend that supports global mouse position
-        // ("wayland" and "rpi" don't support it, but we chose to use a white-list instead of a black-list)
-        bool mouseCanUseGlobalState = false;
-
-        if (HasCaptureAndGlobalMouse) {
-            var sdlBackend = VideoDriver.Current;
-            if (sdlBackend is null) 
-                throw new InvalidOperationException("Video driver have not been initialized yet!");
-            string[] globalMouseWhitelist = [
-                "windows", "cocoa", "x11", "DIVE", "VMAN"
-            ];
-            mouseCanUseGlobalState = globalMouseWhitelist.Any(whitelist => sdlBackend == whitelist);
-        }
+        var verLinked = NekoSDL.Version;
 
         // Setup backend capabilities flags
         _backend = new Data();
@@ -435,27 +448,43 @@ public static unsafe class ImGuiSdl {
         
         io.BackendFlags |= ImGuiBackendFlags.HasMouseCursors;           // We can honor GetMouseCursor() values (optional)
         io.BackendFlags |= ImGuiBackendFlags.HasSetMousePos;            // We can honor io.WantSetMousePos requests (optional, rarely used)
-        if (mouseCanUseGlobalState)
-            io.BackendFlags |= ImGuiBackendFlags.PlatformHasViewports;  // We can create multi-viewports on the Platform side (optional)
 
         _backend.Window = window;
         _backend.Renderer = renderer;
         
         // SDL on Linux/OSX doesn't report events for unfocused windows (see https://github.com/ocornut/imgui/issues/4960)
         // We will use 'MouseCanReportHoveredViewport' to set 'ImGuiBackendFlags_HasMouseHoveredViewport' dynamically each frame.
-        _backend.MouseCanUseGlobalState = mouseCanUseGlobalState;
         if (IsApple)
             _backend.MouseCanReportHoveredViewport = _backend.MouseCanUseGlobalState;
         else
             _backend.MouseCanReportHoveredViewport = false;
 
+        _backend.MouseCanUseGlobalState = false;
+        _backend.MouseCanUseCapture = false;
+        // Check and store if we are on a SDL backend that supports global mouse position
+        // ("wayland" and "rpi" don't support it, but we chose to use a white-list instead of a black-list)
+        if (HasCaptureAndGlobalMouse) {
+            var sdlBackend = VideoDriver.Current;
+            if (sdlBackend is null) 
+                throw new InvalidOperationException("Video driver have not been initialized yet!");
+            string[] globalMouseWhitelist = [
+                "windows", "cocoa", "x11", "DIVE", "VMAN"
+            ];
+            _backend.MouseCanUseGlobalState = _backend.MouseCanUseGlobalState = globalMouseWhitelist.Any(whitelist => sdlBackend == whitelist);
+        }
+        if (_backend.MouseCanUseGlobalState) {
+            io.BackendFlags |= ImGuiBackendFlags.PlatformHasViewports; // We can create multi-viewports on the Platform side (optional)
+        }
+
         var platformIo = (ImGuiPlatformIO*)ImGui.GetPlatformIO();
         delegate*unmanaged[Cdecl]<void*, byte*, void> setClipboardText = &SetClipboardText;
         delegate*unmanaged[Cdecl]<void*, char*> getClipboardText = &GetClipboardText;
         delegate*unmanaged[Cdecl]<void*, ImGuiViewport*, ImGuiPlatformImeData*, void> setImeData = &PlatformSetImeData;
+        delegate*unmanaged[Cdecl]<void*, char*, bool> openInShell = &PlatformOpenInShell;
         platformIo->Platform_SetClipboardTextFn = (IntPtr)setClipboardText;
         platformIo->Platform_GetClipboardTextFn = (IntPtr)getClipboardText;
         platformIo->Platform_SetImeDataFn = (IntPtr)setImeData;
+        platformIo->Platform_OpenInShellFn = (IntPtr)openInShell;
         
         // Update monitor a first time during init
         UpdateMonitors();
@@ -472,6 +501,9 @@ public static unsafe class ImGuiSdl {
         _backend.MouseCursors[ImGuiMouseCursor.ResizeEW] = Cursor.CreateSystem(SystemCursor.EwResize);
         _backend.MouseCursors[ImGuiMouseCursor.ResizeNESW] = Cursor.CreateSystem(SystemCursor.NeswResize);
         _backend.MouseCursors[ImGuiMouseCursor.ResizeNWSE] = Cursor.CreateSystem(SystemCursor.NwseResize);
+        _backend.MouseCursors[ImGuiMouseCursor.Hand] = Cursor.CreateSystem(SystemCursor.Pointer);
+        // _backend.MouseCursors[ImGuiMouseCursor.Wait] = Cursor.CreateSystem(SystemCursor.Wait);
+        // _backend.MouseCursors[ImGuiMouseCursor.Progress] = Cursor.CreateSystem(SystemCursor.Progress);
         _backend.MouseCursors[ImGuiMouseCursor.Hand] = Cursor.CreateSystem(SystemCursor.Pointer);
         _backend.MouseCursors[ImGuiMouseCursor.NotAllowed] = Cursor.CreateSystem(SystemCursor.NotAllowed);
 
@@ -515,22 +547,26 @@ public static unsafe class ImGuiSdl {
     public static void Shutdown() {
         if (_backend == null)
             throw new InvalidOperationException("No platform backend to shutdown, or already shutdown?");
-        
+
         var io = ImGui.GetIO();
 
         if (_backend.ClipboardTextData is not null)
             UnmanagedMemory.Free(_backend.ClipboardTextData);
-        
+
         foreach (var pair in _backend.MouseCursors) {
             pair.Value.Dispose();
         }
-        
+
         CloseGamepads();
 
         ((ImGuiIO*)io)->BackendPlatformName = null;
         io.BackendPlatformUserData = 0;
-        io.BackendFlags &= ~(ImGuiBackendFlags.HasMouseCursors | ImGuiBackendFlags.HasSetMousePos | ImGuiBackendFlags.HasGamepad);
-        _pin.Dispose();
+        io.BackendFlags &= ~(ImGuiBackendFlags.HasMouseCursors
+                             | ImGuiBackendFlags.HasSetMousePos
+                             | ImGuiBackendFlags.HasGamepad
+                             | ImGuiBackendFlags.PlatformHasViewports
+                             | ImGuiBackendFlags.HasMouseHoveredViewport);
+    _pin.Dispose();
     }
 
     static void UpdateMouseData() {
@@ -540,10 +576,15 @@ public static unsafe class ImGuiSdl {
         Window? focusedWindow;
         // We forward mouse input when hovered or captured (via EventType.MOUSE_MOTION) or when focused (below)
         if (HasCaptureAndGlobalMouse) {
-            // SDL_CaptureMouse() let the OS know e.g. that our imgui drag outside the SDL window boundaries shouldn't e.g. trigger other operations outside
-            try {
-                Mouse.Capture = _backend.MouseButtonsDown != 0;
-            } catch (SdlException e) {}
+            // - SDL_CaptureMouse() let the OS know e.g. that our drags can extend outside of parent boundaries (we want updated position) and shouldn't trigger other operations outside.
+            // - Debuggers under Linux tends to leave captured mouse on break, which may be very inconvenient, so to mitigate the issue we wait until mouse has moved to begin capture.
+            if (_backend.MouseCanUseCapture) {
+                for (var i = 0; i < (int)ImGuiMouseButton.COUNT; i++)
+                    if (ImGui.IsMouseDragging((ImGuiMouseButton)i, 1.0f)) {
+                        Mouse.Capture = true;
+                        break;
+                    }
+            }
             focusedWindow = Keyboard.GetFocusedWindow();
             isAppFocused = focusedWindow is not null && 
                             (_backend.Window == focusedWindow || GetViewportForWindowID(focusedWindow.Id).PlatformHandle != 0);
@@ -567,8 +608,11 @@ public static unsafe class ImGuiSdl {
                     _backend.Window.WarpMouse(io.MousePos);
         }
 
-        // (Optional) Fallback to provide mouse position when focused (EventType.MOUSE_MOTION already provides this when hovered or captured)
-        if (_backend.MouseCanUseGlobalState && _backend.MouseButtonsDown == 0) {
+        // (Optional) Fallback to provide unclamped mouse position when focused but not hovered (SDL_EVENT_MOUSE_MOTION already provides this when hovered or captured)
+        // Note that SDL_GetGlobalMouseState() is in theory slow on X11, but this only runs on rather specific cases. If a problem we may provide a way to opt-out this feature.
+        var hoveredWindow = Mouse.Focus;
+        var relativeMouseMode = hoveredWindow?.RelativeMouseMode??false;
+        if (hoveredWindow is not null && _backend.MouseCanUseGlobalState && _backend.MouseButtonsDown == 0 && !relativeMouseMode) {
             // Single-viewport mode: mouse position in client window coordinates (io.MousePos is (0,0) when the mouse is on the upper-left corner of the app window)
             // Multi-viewport mode: mouse position in OS absolute coordinates (io.MousePos is (0,0) when the mouse is on the upper-left of the primary monitor)
             var mousePos = Mouse.GlobalState.Position;
@@ -726,11 +770,11 @@ public static unsafe class ImGuiSdl {
             monitor.MainPos = monitor.WorkPos = new Vector2(r.X, r.Y);
             monitor.MainSize = monitor.WorkSize = new Vector2(r.Width, r.Height);
             r = Display.GetUsableBounds(displayId);
-            monitor.WorkPos = new Vector2(r.X, r.Y);
-            monitor.WorkSize = new Vector2(r.Width, r.Height);
-            // FIXME-VIEWPORT: On macOS SDL reports actual monitor DPI scale, ignoring OS configuration. We may want to set
-            //  DpiScale to cocoa_window.backingScaleFactor here.
-            monitor.DpiScale = Display.GetContentScale(displayId);
+            if (r.Width > 0 && r.Height > 0) {
+                monitor.WorkPos = new Vector2(r.X, r.Y);
+                monitor.WorkSize = new Vector2(r.Width, r.Height);
+            }
+            monitor.DpiScale = Display.GetContentScale(displayId); // See https://wiki.libsdl.org/SDL3/README-highdpi for details.
             monitor.PlatformHandle = (void*)displayId;
             if (monitor.DpiScale <= 0.0f)
                 continue; // Some accessibility applications are declaring virtual monitors with a DPI of 0, see #7902.
@@ -744,6 +788,27 @@ public static unsafe class ImGuiSdl {
         UnmanagedMemory.Free(platformIo->Monitors.Data);
         platformIo->Monitors = new ImVector(monitors.Count, monitors.Count, monitorPtr);
     }
+    
+    static void GetWindowSizeAndFramebufferScale(Window window, out Vector2 outSize, out Vector2 outFramebufferScale) {
+        var size = window.Size;
+        if (window.Flags.HasFlag(WindowFlags.Minimized))
+            size.Width = size.Height = 0;
+
+        float fb_scale_x;
+        float fb_scale_y;
+        if (IsApple) {
+            fb_scale_x = window.DisplayScale; // Seems more reliable during resolution change (#8703)
+            fb_scale_y = fb_scale_x;
+        }
+        else {
+            var displaySize = window.SizeInPixels;
+            fb_scale_x = (size.Width > 0) ? (float)displaySize.Width / size.Width : 1.0f;
+            fb_scale_y = (size.Height > 0) ? (float)displaySize.Height / size.Height : 1.0f;
+        }
+        
+        outSize = new Vector2(size.Width, size.Height);
+        outFramebufferScale = new Vector2(fb_scale_x, fb_scale_y);
+    }
 
     public static void NewFrame() {
         if (_backend == null)
@@ -752,6 +817,8 @@ public static unsafe class ImGuiSdl {
         var io = ImGui.GetIO();
 
         // Setup display size (every frame to accommodate for window resizing)
+        // Setup main viewport size (every frame to accommodate for window resizing)
+        GetWindowSizeAndFramebufferScale(_backend.Window, out io.DisplaySize, out io.DisplayFramebufferScale);
         var size = _backend.Window.Size;
         if (_backend.Window.Flags.HasFlag(WindowFlags.Minimized))
             size = new Size(0, 0);
@@ -761,10 +828,12 @@ public static unsafe class ImGuiSdl {
             io.DisplayFramebufferScale = new Vector2((float)display.Width / size.Width, (float)display.Height / size.Height);
         
         // Update monitors
+        if (OperatingSystem.IsWindows())
+            _backend.WantUpdateMonitors = true; // Keep polling under Windows to handle changes of work area when resizing task-bar (#8415)
         if (_backend.WantUpdateMonitors)
             UpdateMonitors();
 
-        // Setup time step (we don't use SDL_GetTicks() because it is using millisecond resolution)
+        // Setup time step (we could also use SDL_GetTicksNS() available since SDL3)
         // (Accept SDL_GetPerformanceCounter() not returning a monotonically increasing value. Happens in VMs and Emscripten, see #6189, #6114, #3644)
         var frequency = Timer.GetPerformanceFrequency();
         var currentTime = Timer.GetPerformanceCounter();
@@ -805,7 +874,7 @@ public static unsafe class ImGuiSdl {
     {
         public Window?     Window;
         public Window?     ParentWindow;
-        public UInt32          WindowID;
+        public UInt32          WindowID; // Stored in ImGuiViewport::PlatformHandle. Use SDL_GetWindowFromID() to get SDL_Window* from Uint32 WindowID.
         public bool            WindowOwned;
         public IntPtr GLContext;
 
@@ -862,7 +931,8 @@ public static unsafe class ImGuiSdl {
         flags |= viewport->Flags.HasFlag(ImGuiViewportFlags.NoTaskBarIcon) ? WindowFlags.Utility : 0;
         flags |= viewport->Flags.HasFlag(ImGuiViewportFlags.TopMost) ? WindowFlags.AlwaysOnTop : 0;
         vd.Window = new Window((int)viewport->Size.X, (int)viewport->Size.Y, "Untitled", flags);
-        vd.Window.Parent = vd.ParentWindow; 
+        if (!IsApple) // On Mac, SDL3 Parenting appears to prevent viewport from appearing in another monitor
+            vd.Window.Parent = vd.ParentWindow; 
         vd.Window.Position = new Point((int)viewport->Pos.X, (int)viewport->Pos.Y);
         vd.WindowOwned = true;
         if (useOpengl) {
@@ -909,20 +979,26 @@ public static unsafe class ImGuiSdl {
         //         // ::SetWindowLong(hwnd, GWL_EXSTYLE, ex_style);
         //     }
         // }
-        Hints.WindowActivateWhenShown.SetValue((viewport->Flags.HasFlag(ImGuiViewportFlags.NoFocusOnAppearing)) ? "0" : "1");
-        vd.Window.Show();
+        if (IsApple)
+            Hints.WindowActivateWhenShown.SetValue("1");
+        else
+            Hints.WindowActivateWhenShown.SetValue((viewport->Flags.HasFlag(ImGuiViewportFlags.NoFocusOnAppearing)) ? "0" : "1");
+        vd.Window?.Show();
     }
 
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
     static void UpdateWindow(ImGuiViewport* viewport) {
         var vd = ((ImGuiViewportPtr)viewport).GetViewportData();
 
-        // Update SDL3 parent if it changed _after_ creation.
-        // This is for advanced apps that are manipulating ParentViewportID manually.
-        var newParent = GetSDLWindowFromViewportID(viewport->ParentViewportId);
-        if (newParent != vd.ParentWindow) {
-            vd.ParentWindow = newParent;
-            vd.Window.Parent = vd.ParentWindow;
+        if (!IsApple) { // On Mac, SDL3 Parenting appears to prevent viewport from appearing in another monitor
+            // Update SDL3 parent if it changed _after_ creation.
+            // This is for advanced apps that are manipulating ParentViewportID manually.
+            var newParent = GetSDLWindowFromViewportID(viewport->ParentViewportId);
+            if (vd.ParentWindow is null) return;
+            if (newParent.Handle != vd.ParentWindow.Handle) {
+                vd.ParentWindow = newParent;
+                vd.Window.Parent = vd.ParentWindow;
+            }
         }
     }
     
@@ -953,6 +1029,13 @@ public static unsafe class ImGuiSdl {
         var vd = ((ImGuiViewportPtr)viewport).GetViewportData();
         
         vd.Window.Size = new Size((int)size.X, (int)size.Y);
+    }
+    
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
+    static Vector2 GetWindowFramebufferScale(ImGuiViewport* viewport) {
+        var vd = ((ImGuiViewportPtr)viewport).GetViewportData();
+        GetWindowSizeAndFramebufferScale(vd.Window, out _, out var framebuffer_scale);
+        return framebuffer_scale;
     }
 
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
@@ -1036,6 +1119,7 @@ public static unsafe class ImGuiSdl {
         delegate*unmanaged[Cdecl]<ImGuiViewport*, Vector2> getWindowPos = &GetWindowPos;
         delegate*unmanaged[Cdecl]<ImGuiViewport*, Vector2, void> setWindowSize = &SetWindowSize;
         delegate*unmanaged[Cdecl]<ImGuiViewport*, Vector2> getWindowSize = &GetWindowSize;
+        delegate*unmanaged[Cdecl]<ImGuiViewport*, Vector2> getWindowFramebufferScale = &GetWindowFramebufferScale;
         delegate*unmanaged[Cdecl]<ImGuiViewport*, void> setWindowFocus = &SetWindowFocus;
         delegate*unmanaged[Cdecl]<ImGuiViewport*, bool> getWindowFocus = &GetWindowFocus;
         delegate*unmanaged[Cdecl]<ImGuiViewport*, bool> getWindowMinimized = &GetWindowMinimized;
@@ -1052,6 +1136,7 @@ public static unsafe class ImGuiSdl {
         platformIo.Platform_GetWindowPos = (IntPtr)getWindowPos;
         platformIo.Platform_SetWindowSize = (IntPtr)setWindowSize;
         platformIo.Platform_GetWindowSize = (IntPtr)getWindowSize;
+        //platformIo.Platform_GetWindowFramebufferScale = (IntPtr)getWindowFramebufferScale;
         platformIo.Platform_SetWindowFocus = (IntPtr)setWindowFocus;
         platformIo.Platform_GetWindowFocus = (IntPtr)getWindowFocus;
         platformIo.Platform_GetWindowMinimized = (IntPtr)getWindowMinimized;
