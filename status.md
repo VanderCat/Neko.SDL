@@ -722,6 +722,12 @@ NOTE: this implements stream so you can do any C# stream shenanigans
 ### Power Management Status
 ### Message Boxes
 ### File Dialogs
+| Original Function                | Neko.SDL equivalent         |
+|----------------------------------|-----------------------------|
+| SDL_ShowFileDialogWithProperties | ✅ FileDialog.Show           |
+| SDL_ShowOpenFileDialog           | ✅ FileDialog.ShowOpen       |
+| SDL_ShowOpenFolderDialog         | ✅ FileDialog.ShowOpenFolder |
+| SDL_ShowSaveFileDialog           | ✅ FileDialog.ShowSave       |
 ### System Tray
 ### Locale Info
 ### Platform-specific Functionality

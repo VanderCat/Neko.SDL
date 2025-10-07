@@ -25,7 +25,7 @@ internal class Program {
         // Setup SDL
         AppMetadata.Set(AppDomain.CurrentDomain.FriendlyName, Assembly.GetEntryAssembly()!.GetName().Version!.ToString(), "nekosdl.testapp");
         NekoSDL.Init(InitFlags.Video | InitFlags.Gamepad);
-        FileDialog.ShowFolderOpen((filelist, index) => {
+        FileDialog.ShowOpenFolder((filelist, index) => {
             if (filelist is null) return;
             foreach (var file in filelist) {
                 Console.WriteLine(file);
