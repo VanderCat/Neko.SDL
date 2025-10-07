@@ -1,5 +1,7 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Text;
+using Neko.Sdl.Extra.StandardLibrary;
 using Neko.Sdl.Video;
 
 namespace Neko.Sdl.Extra.Dialog;
@@ -9,13 +11,13 @@ public static unsafe class FileDialog {
 
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
     private static void NativeCallback(IntPtr userdata, byte** filelist, int filter) {
-        var managedCallbackPin = new Pin<FileCallback>(userdata, true);
+        using var managedCallbackPin = new Pin<FileCallback>(userdata, true);
         var managedCallback = managedCallbackPin.Target;
         List<string>? strings = null;
         if (filelist is not null) {
             strings = new List<string>();
-            while (filelist is not null) {
-                var str = Marshal.PtrToStringUTF8((IntPtr)filelist);
+            while (*filelist is not null) {
+                var str = Marshal.PtrToStringUTF8((IntPtr)(*filelist));
                 if (str is not null)
                     strings.Add(str);
                 filelist++;
@@ -23,8 +25,6 @@ public static unsafe class FileDialog {
         }
         
         managedCallback(strings, filter);
-        
-        managedCallbackPin.Dispose();
     }
 
     public static void ShowFileOpen(FileCallback callback,
@@ -41,14 +41,22 @@ public static unsafe class FileDialog {
             var counter = 0;
             filtersArray = new SDL_DialogFileFilter[filters.Count];
             foreach (var (name, pattern) in filters) {
+                var nameBuf = Encoding.UTF8.GetBytes(name);
+                var patternBuf = Encoding.UTF8.GetBytes(pattern);
                 var filter = new SDL_DialogFileFilter {
-                    name = (byte*)Marshal.StringToHGlobalAnsi(name),
-                    pattern = (byte*)Marshal.StringToHGlobalAnsi(pattern),
+                    name = (byte*)UnmanagedMemory.Malloc((nuint)nameBuf.Length),
+                    pattern = (byte*)UnmanagedMemory.Malloc((nuint)patternBuf.Length),
                 };
+                UnmanagedMemory.Copy(nameBuf, new Span<byte>(filter.name, nameBuf.Length));
+                UnmanagedMemory.Copy(patternBuf, new Span<byte>(filter.pattern, patternBuf.Length));
                 filtersArray[counter++] = filter;
             }
             fixed(SDL_DialogFileFilter* filter = filtersArray)
                 SDL_ShowOpenFileDialog(nativeCallback, callbackPtr, windowPtr, filter, filtersArray.Length, defaultLocation, multiple);
+            foreach (var filter in filtersArray) {
+                UnmanagedMemory.Free(filter.name);
+                UnmanagedMemory.Free(filter.pattern);
+            }
             return;
         }
         SDL_ShowOpenFileDialog(nativeCallback, callbackPtr, windowPtr, null, 0, defaultLocation, multiple);
@@ -67,14 +75,22 @@ public static unsafe class FileDialog {
             var counter = 0;
             filtersArray = new SDL_DialogFileFilter[filters.Count];
             foreach (var (name, pattern) in filters) {
+                var nameBuf = Encoding.UTF8.GetBytes(name);
+                var patternBuf = Encoding.UTF8.GetBytes(pattern);
                 var filter = new SDL_DialogFileFilter {
-                    name = (byte*)Marshal.StringToHGlobalAnsi(name),
-                    pattern = (byte*)Marshal.StringToHGlobalAnsi(pattern),
+                    name = (byte*)UnmanagedMemory.Malloc((nuint)nameBuf.Length),
+                    pattern = (byte*)UnmanagedMemory.Malloc((nuint)patternBuf.Length),
                 };
+                UnmanagedMemory.Copy(nameBuf, new Span<byte>(filter.name, nameBuf.Length));
+                UnmanagedMemory.Copy(patternBuf, new Span<byte>(filter.pattern, patternBuf.Length));
                 filtersArray[counter++] = filter;
             }
             fixed(SDL_DialogFileFilter* filter = filtersArray)
                 SDL_ShowSaveFileDialog(nativeCallback, callbackPtr, windowPtr, filter, filtersArray.Length, defaultLocation);
+            foreach (var filter in filtersArray) {
+                UnmanagedMemory.Free(filter.name);
+                UnmanagedMemory.Free(filter.pattern);
+            }
             return;
         }
         SDL_ShowSaveFileDialog(nativeCallback, callbackPtr, windowPtr, null, 0, defaultLocation);

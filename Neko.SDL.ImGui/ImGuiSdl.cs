@@ -32,6 +32,7 @@ using ImGuiNET;
 using Neko.Sdl;
 using Neko.Sdl.Events;
 using Neko.Sdl.Extra;
+using Neko.Sdl.Extra.StandardLibrary;
 using Neko.Sdl.Input;
 using Neko.Sdl.Video;
 using Rectangle = Neko.Sdl.Rectangle;
@@ -95,11 +96,11 @@ public static unsafe class ImGuiSdl {
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
     static char* GetClipboardText(void* context) {
         if (_backend.ClipboardTextData is not null)
-            Marshal.FreeHGlobal((IntPtr)_backend.ClipboardTextData);
+            UnmanagedMemory.Free(_backend.ClipboardTextData);
         var sdlClipboardText = Clipboard.Text;
-        var ptr = Marshal.StringToHGlobalAnsi(sdlClipboardText);
-        _backend.ClipboardTextData = sdlClipboardText is not null ? (char*)ptr : null;
-        return _backend.ClipboardTextData;
+        if (sdlClipboardText is null)
+            return _backend.ClipboardTextData = null;
+        return _backend.ClipboardTextData = (char*)sdlClipboardText.ToUnmanagedPointer();;
     }
 
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]

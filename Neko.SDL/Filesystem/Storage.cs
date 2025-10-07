@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using Neko.Sdl.Extra.StandardLibrary;
 
 namespace Neko.Sdl.Filesystem;
 
@@ -71,7 +72,7 @@ public unsafe partial class Storage : SdlWrapper<SDL_Storage> {
         if (pathStr is null) return false;
         try {
             var managedInfo = userdata.AsPin<IStorage>().Target.Info(pathStr);
-            info = (SDL_PathInfo*)Marshal.AllocHGlobal(Marshal.SizeOf<SDL_PathInfo>());
+            info = (SDL_PathInfo*)UnmanagedMemory.Malloc((nuint)sizeof(SDL_PathInfo));
             Unsafe.Copy(ref managedInfo, info);
         }
         catch (Exception e) {

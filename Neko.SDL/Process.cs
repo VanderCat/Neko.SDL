@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 using Neko.Sdl.Extra;
+using Neko.Sdl.Extra.StandardLibrary;
 
 namespace Neko.Sdl;
 
@@ -173,7 +174,7 @@ public unsafe partial class Process : SdlWrapper<SDL_Process> {
     /// <br/><br/>
     /// The data is allocated with a zero byte at the end (null terminated) for convenience. This extra byte is not included in the value reported via datasize.
     /// <br/><br/>
-    /// The data should be freed with <see cref="Neko.Sdl.Extra.UnmanagedMemory.Free(nint)"/>.
+    /// The data should be freed with <see cref="UnmanagedMemory.Free(nint)"/>.
     /// </remarks>
     public IntPtr Read(out nuint dataSize, out int exitCode) {
         dataSize = 0;

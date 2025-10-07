@@ -1,9 +1,11 @@
 using System.Runtime.CompilerServices;
+using System.Text;
 using Neko.Sdl.Extra;
+using Neko.Sdl.Extra.StandardLibrary;
 
 namespace Neko.Sdl;
 
-internal unsafe class Util {
+internal static unsafe class Util {
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T[] ConvertSdlArrayToManaged<T>(T* ptr, in uint count) where T : unmanaged {
@@ -14,5 +16,12 @@ internal unsafe class Util {
             Unsafe.CopyBlock(arrayPtr, ptr, count);
         UnmanagedMemory.Free(ptr);
         return array;
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static byte* ToUnmanagedPointer(this string str) {
+        var buf = Encoding.UTF8.GetBytes(str);
+        var ptr = UnmanagedMemory.Malloc((nuint)buf.Length);
+        return (byte*)UnmanagedMemory.Copy(buf, new Span<byte>((void*)ptr, buf.Length));
     }
 }

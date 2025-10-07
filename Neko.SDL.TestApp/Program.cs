@@ -3,6 +3,8 @@ using System.Globalization;
 using System.Numerics;
 using System.Reflection;
 using ImGuiNET;
+using Neko.Sdl.Extra.Dialog;
+using Neko.Sdl.Extra.StandardLibrary;
 using Neko.Sdl.ImGuiBackend;
 using Neko.Sdl.Video;
 using SDL;
@@ -10,10 +12,25 @@ using SDL;
 namespace Neko.Sdl.Sample;
 
 internal class Program {
+    [STAThread]
     public static unsafe void Main(string[] args) {
+        var man = new SdlDebugUnmanagedMemoryManager();
+        //UnmanagedMemory.SetFunctions(new NativeUnmanagedMemoryManager());
+        int[] test = [0, 1337, 228, 69, -1, 12];
+        test.QSort((ref int a, ref int b) => {
+            if (a < b)
+                return -1;
+            return b < a ? 1 : 0;
+        });
         // Setup SDL
         AppMetadata.Set(AppDomain.CurrentDomain.FriendlyName, Assembly.GetEntryAssembly()!.GetName().Version!.ToString(), "nekosdl.testapp");
         NekoSDL.Init(InitFlags.Video | InitFlags.Gamepad);
+        FileDialog.ShowFolderOpen((filelist, index) => {
+            if (filelist is null) return;
+            foreach (var file in filelist) {
+                Console.WriteLine(file);
+            } 
+        });
 
         // Create window with SDL_Renderer graphics context
         const WindowFlags windowFlags = WindowFlags.Opengl | WindowFlags.Resizable | WindowFlags.Hidden;
@@ -170,5 +187,6 @@ internal class Program {
         renderer.Dispose();
         window.Dispose();
         NekoSDL.Quit();
+        man.Check();
     }
 }

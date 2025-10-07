@@ -2,6 +2,7 @@ using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Neko.Sdl.Extra;
+using Neko.Sdl.Extra.StandardLibrary;
 
 namespace Neko.Sdl;
 
