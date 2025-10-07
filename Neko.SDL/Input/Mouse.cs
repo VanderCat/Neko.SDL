@@ -1,6 +1,7 @@
 using System.Numerics;
 using Neko.Sdl.Extra;
 using Neko.Sdl.Extra.StandardLibrary;
+using Neko.Sdl.Video;
 
 namespace Neko.Sdl.Input;
 
@@ -12,6 +13,14 @@ public static unsafe class Mouse {
     
     public static bool Capture {
         set => SDL_CaptureMouse(value).ThrowIfError();
+    }
+
+    public static Window? Focus {
+        get {
+            var window = SDL_GetMouseFocus();
+            if (window is null) return null;
+            return window;
+        }
     }
 
     public static Cursor CurrentCursor => SDL_GetCursor();
