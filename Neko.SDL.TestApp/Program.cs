@@ -45,14 +45,15 @@ internal class Program {
         var io = ImGui.GetIO();
         io.ConfigFlags |= ImGuiConfigFlags.NavEnableKeyboard; // Enable Keyboard Controls
         io.ConfigFlags |= ImGuiConfigFlags.NavEnableGamepad;  // Enable Gamepad Controls
-        io.ConfigFlags |= ImGuiConfigFlags.ViewportsEnable;
+        //io.ConfigFlags |= ImGuiConfigFlags.ViewportsEnable;
 
     // Setup Dear ImGui style
         ImGui.StyleColorsDark();
         //ImGui.StyleColorsLight();
 
         // Setup Platform/Renderer backends
-        ImGuiSdl.InitForSDLRenderer(window, renderer);
+        var backend = new SdlPlatformBackend(window, renderer);
+        ImGuiSdl.Init(backend);
         ImGuiSdlRenderer.Init(renderer);
 
         // Load Fonts
@@ -87,7 +88,7 @@ internal class Program {
             // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
             SDL_Event e;
             while (SDL3.SDL_PollEvent(&e)) {
-                ImGuiSdl.ProcessEvent(&e);
+                backend.ProcessEvent(&e);
                 if (e.Type == SDL_EventType.SDL_EVENT_QUIT)
                     done = true;
                 if (e.Type == SDL_EventType.SDL_EVENT_WINDOW_CLOSE_REQUESTED && e.window.windowID == (SDL_WindowID)window.Id)
