@@ -75,15 +75,13 @@ public static unsafe class ImGuiSdl {
     static bool PlatformOpenInShell(void* context, char* url) {
         return _backend.OpenInShell(Marshal.PtrToStringUTF8((IntPtr)url)??"");
     }
-
-    public static bool ProcessEvent(Event e) => ProcessEvent(e.Handle);
-
+    
     // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
     // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application, or clear/overwrite your copy of the mouse data.
     // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application, or clear/overwrite your copy of the keyboard data.
     // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
     // If you have multiple SDL events and some of them are not meant to be used by dear imgui, you may need to filter events based on their windowID field.
-    public static bool ProcessEvent(SDL_Event* e) {
+    public static bool ProcessEvent(ref Event e) {
         if (_backend is null) 
             throw new Exception("Context or backend not initialized! Did you call Init()?");
         return true;

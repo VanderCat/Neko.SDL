@@ -531,64 +531,65 @@ public unsafe class SdlPlatformBackend : IPlatformBackend, IViewportBackend {
     public static ImGuiViewportPtr GetImGuiViewport(Window window) =>
         GetViewportForWindowID(window.Id);
 
-    public bool ProcessEvent(SDL_Event* e) {
+    public bool ProcessEvent(ref Event ev) {
         var io = ImGui.GetIO();
-        var type = (EventType)e->type;
+        var type = ev.Type;
+        var e = (SDL_Event*)Unsafe.AsPointer(ref ev); //TODO:
         ImGuiViewportPtr viewport;
         switch (type) {
             case EventType.MouseMotion:
-                viewport = GetViewportForWindowID((uint)e->motion.windowID);
+                viewport = GetViewportForWindowID(ev.Motion.WindowId);
                 if (viewport.NativePtr is null)
                     return false;
-                var mousePos = new Vector2(e->motion.x, e->motion.y);
+                var mousePos = new Vector2(ev.Motion.X, ev.Motion.Y);
                 if (io.ConfigFlags.HasFlag(ImGuiConfigFlags.ViewportsEnable)) {
-                    var windowPos = Window.GetById((uint)e->motion.windowID).Position;
+                    var windowPos = ev.Motion.Window.Position;
                     mousePos = mousePos with { X = mousePos.X + windowPos.X, Y = mousePos.Y + windowPos.Y };
                 }
-                io.AddMouseSourceEvent(e->motion.which == SDL_TOUCH_MOUSEID ? ImGuiMouseSource.TouchScreen : ImGuiMouseSource.Mouse);
+                io.AddMouseSourceEvent(ev.Motion.Which == (uint)SDL_TOUCH_MOUSEID ? ImGuiMouseSource.TouchScreen : ImGuiMouseSource.Mouse);
                 io.AddMousePosEvent(mousePos.X, mousePos.Y);
                 return true;
             case EventType.MouseWheel:
-                viewport = GetViewportForWindowID((uint)e->wheel.windowID);
+                viewport = GetViewportForWindowID(ev.Wheel.WindowId);
                 if (viewport.NativePtr is null)
                     return false;
-                var wheelX = -e->wheel.x;
-                var wheelY = e->wheel.y;
-                io.AddMouseSourceEvent(e->wheel.which == SDL_TOUCH_MOUSEID ? ImGuiMouseSource.TouchScreen : ImGuiMouseSource.Mouse);
+                var wheelX = -ev.Wheel.X;
+                var wheelY = ev.Wheel.Y;
+                io.AddMouseSourceEvent(ev.Wheel.Which == (uint)SDL_TOUCH_MOUSEID ? ImGuiMouseSource.TouchScreen : ImGuiMouseSource.Mouse);
                 io.AddMouseWheelEvent(wheelX, wheelY);
                 return true;
             case EventType.MouseButtonDown:
             case EventType.MouseButtonUp:
-                viewport = GetViewportForWindowID((uint)e->button.windowID);
+                viewport = GetViewportForWindowID(ev.Button.WindowId);
                 if (viewport.NativePtr is null)
                     return false;
                 int mouseButton = -1;
-                if (e->button.button == SDL_BUTTON_LEFT) { mouseButton = 0; }
-                if (e->button.button == SDL_BUTTON_RIGHT) { mouseButton = 1; }
-                if (e->button.button == SDL_BUTTON_MIDDLE) { mouseButton = 2; }
-                if (e->button.button == SDL_BUTTON_X1) { mouseButton = 3; }
-                if (e->button.button == SDL_BUTTON_X2) { mouseButton = 4; }
+                if (ev.Button.Button == MouseButtonFlags.Lmask) { mouseButton = 0; }
+                if (ev.Button.Button == MouseButtonFlags.Rmask) { mouseButton = 1; }
+                if (ev.Button.Button == MouseButtonFlags.Mmask) { mouseButton = 2; }
+                if (ev.Button.Button == MouseButtonFlags.X1mask) { mouseButton = 3; }
+                if (ev.Button.Button == MouseButtonFlags.X2mask) { mouseButton = 4; }
                 if (mouseButton == -1)
                     break;
-                io.AddMouseSourceEvent(e->button.which == SDL_TOUCH_MOUSEID ? ImGuiMouseSource.TouchScreen : ImGuiMouseSource.Mouse);
-                io.AddMouseButtonEvent(mouseButton, e->Type == (SDL_EventType)EventType.MouseButtonDown);
-                MouseButtonsDown = (e->type == (uint)EventType.MouseButtonDown) ? (MouseButtonsDown | (1 << mouseButton)) : (MouseButtonsDown & ~(1 << mouseButton));
+                io.AddMouseSourceEvent(ev.Button.Which == (uint)SDL_TOUCH_MOUSEID ? ImGuiMouseSource.TouchScreen : ImGuiMouseSource.Mouse);
+                io.AddMouseButtonEvent(mouseButton, ev.Type == EventType.MouseButtonDown);
+                MouseButtonsDown = (ev.Type == EventType.MouseButtonDown) ? (MouseButtonsDown | (1 << mouseButton)) : (MouseButtonsDown & ~(1 << mouseButton));
                 return true;
             case EventType.TextInput:
-                viewport = GetViewportForWindowID((uint)e->text.windowID);
+                viewport = GetViewportForWindowID(ev.Text.WindowId);
                 if (viewport.NativePtr is null)
                     return false;
-                io.AddInputCharactersUTF8(new ReadOnlySpan<char>(e->text.text, (int)SDL_strlen(e->text.text)));
+                io.AddInputCharactersUTF8(ev.Text.Text);
                 return true;
             case EventType.KeyDown:
             case EventType.KeyUp:
-                viewport = GetViewportForWindowID((uint)e->key.windowID);
+                viewport = GetViewportForWindowID(ev.Key.WindowId);
                 if (viewport.NativePtr is null)
                     return false;
-                UpdateKeyModifiers((Keymod)e->key.mod);
-                var key = KeyEventToImGuiKey((Keycode)e->key.key, (Scancode)e->key.scancode);
+                UpdateKeyModifiers(ev.Key.Mod);
+                var key = KeyEventToImGuiKey(ev.Key.Key, ev.Key.Scancode);
                 io.AddKeyEvent(key, type is EventType.KeyDown);
-                io.SetKeyEventNativeData(key, (int)e->key.key, (int)e->key.scancode, (int)e->key.scancode); // To support legacy indexing (<1.87 user code). Legacy backend uses Keycode.*** as indices to IsKeyXXX() functions.
+                io.SetKeyEventNativeData(key, (int)ev.Key.Key, (int)ev.Key.Scancode, (int)ev.Key.Scancode); // To support legacy indexing (<1.87 user code). Legacy backend uses Keycode.*** as indices to IsKeyXXX() functions.
                 return true;
             case EventType.DisplayOrientation:
             case EventType.DisplayAdded:
@@ -598,7 +599,7 @@ public unsafe class SdlPlatformBackend : IPlatformBackend, IViewportBackend {
                 WantUpdateMonitors = true;
                 return true;
             case EventType.WindowMouseEnter:
-                MouseWindowID = (uint)e->window.windowID;
+                MouseWindowID = ev.Window.WindowId;
                 MousePendingLeaveFrame = 0;
                 return true;
             // - In some cases, when detaching a window from main viewport SDL may send SDL_WINDOWEVENT_ENTER one frame too late,
@@ -610,25 +611,25 @@ public unsafe class SdlPlatformBackend : IPlatformBackend, IViewportBackend {
                 return true;
             case EventType.WindowFocusGained:
             case EventType.WindowFocusLost:
-                viewport = GetViewportForWindowID((uint)e->text.windowID);
+                viewport = GetViewportForWindowID(ev.Text.WindowId);
                 if (viewport.NativePtr is null)
                     return false;
                 io.AddFocusEvent(type is EventType.WindowFocusGained);
                 return true;
             case EventType.WindowCloseRequested:
-                viewport = GetViewportForWindowID((uint)e->window.windowID);
+                viewport = GetViewportForWindowID(ev.Window.WindowId);
                 if (viewport.NativePtr is null)
                     return false;
                 viewport.PlatformRequestClose = true;
                 return true;
             case EventType.WindowMoved:
-                viewport = GetViewportForWindowID((uint)e->window.windowID);
+                viewport = GetViewportForWindowID(ev.Window.WindowId);
                 if (viewport.NativePtr is null)
                     return false;
                 viewport.PlatformRequestMove = true;
                 return true;
             case EventType.WindowResized:
-                viewport = GetViewportForWindowID((uint)e->window.windowID);
+                viewport = GetViewportForWindowID(ev.Window.WindowId);
                 if (viewport.NativePtr is null)
                     return false;
                 viewport.PlatformRequestResize = true;
@@ -767,7 +768,7 @@ public unsafe class SdlPlatformBackend : IPlatformBackend, IViewportBackend {
         flags |= viewport.Flags.HasFlag(ImGuiViewportFlags.NoDecoration) ? 0 : WindowFlags.Resizable;
         flags |= viewport.Flags.HasFlag(ImGuiViewportFlags.NoTaskBarIcon) ? WindowFlags.Utility : 0;
         flags |= viewport.Flags.HasFlag(ImGuiViewportFlags.TopMost) ? WindowFlags.AlwaysOnTop : 0;
-        vd.Window = new Window((int)viewport.Size.X, (int)viewport.Size.Y, "Untitled", flags);
+        vd.Window = Window.Create((int)viewport.Size.X, (int)viewport.Size.Y, "Untitled", flags);
         if (!ImGuiSdl.IsApple) // On Mac, SDL3 Parenting appears to prevent viewport from appearing in another monitor
             vd.Window.Parent = vd.ParentWindow; 
         vd.Window.Position = new Point((int)viewport.Pos.X, (int)viewport.Pos.Y);

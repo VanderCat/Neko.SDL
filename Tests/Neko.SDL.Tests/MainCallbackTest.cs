@@ -33,12 +33,12 @@ public abstract unsafe class MainCallbacksTest : IApplication {
         return AppResult.Continue;
     }
 
-    public AppResult Event(Event e) {
-        switch (e.EventType) {
+    public AppResult Event(ref Event e) {
+        switch (e.Type) {
             case EventType.Quit:
             case EventType.WindowCloseRequested:
             case EventType.Terminating:
-            case EventType.KeyDown when e.Handle->key.key == SDL_Keycode.SDLK_ESCAPE: //TODO: Neko.SDL.Event
+            case EventType.KeyDown when e.Key.Key == SDL_Keycode.SDLK_ESCAPE: //TODO: Neko.SDL.Event
                 return AppResult.Success;
         }
 

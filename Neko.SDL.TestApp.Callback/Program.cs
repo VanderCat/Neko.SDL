@@ -22,11 +22,11 @@ public class Program : IApplication {
     public bool showDemoWindow = true;
     public bool showAnotherWindow = false;
     public Vector4 clearColor = new Vector4(0.45f, 0.55f, 0.60f, 1.00f);
-    public AppResult Event(Event @event) {
+    public AppResult Event(ref Event @event) {
         //Log.Verbose(0,$"got event {@event.EventType}");
-        if (@event.EventType == EventType.Quit)
+        if (@event.Type == EventType.Quit)
             return AppResult.Success;
-        ImGuiSdl.ProcessEvent(@event);
+        ImGuiSdl.ProcessEvent(ref @event);
         return AppResult.Continue;
     }
     public AppResult Init(string[] args) {
@@ -35,7 +35,7 @@ public class Program : IApplication {
         NekoSDL.Init(InitFlags.Video);
 
         const WindowFlags windowFlags = WindowFlags.Opengl | WindowFlags.Resizable | WindowFlags.Hidden;
-        Window = new Window(1280, 720, "Dear ImGui SDL3+SDL_Renderer example", windowFlags);
+        Window = Window.Create(1280, 720, "Dear ImGui SDL3+SDL_Renderer example", windowFlags);
         Renderer = Window.CreateRenderer();
         Renderer.VSync = 0;
         Window.Position = new Point((int)SDL3.SDL_WINDOWPOS_CENTERED, (int)SDL3.SDL_WINDOWPOS_CENTERED);
@@ -52,7 +52,7 @@ public class Program : IApplication {
         //ImGui.StyleColorsLight();
 
         // Setup Platform/Renderer backends
-        ImGuiSdl.InitForSDLRenderer(Window, Renderer);
+        //ImGuiSdl.InitForSDLRenderer(Window, Renderer);
         ImGuiSdlRenderer.Init(Renderer);
 
         // Load Fonts

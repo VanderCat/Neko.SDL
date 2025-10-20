@@ -6,14 +6,16 @@ using System.Runtime.CompilerServices;
 namespace Neko.Sdl.Video;
 
 public sealed unsafe partial class Renderer : SdlWrapper<SDL_Renderer> {
-    public Renderer(Window window, string? name) {
-        Handle = SDL_CreateRenderer(window.Handle, name);
-        if (Handle is null) throw new SdlException("Failed to create renderer: ");
+    public static Renderer Create(Window window, string? name = null) {
+        var handle = SDL_CreateRenderer(window.Handle, name);
+        if (handle is null) throw new SdlException("Failed to create renderer: ");
+        return new Renderer(handle);
     }
 
-    public Renderer(Properties properties) {
-        Handle = SDL_CreateRendererWithProperties(properties);
-        if (Handle is null) throw new SdlException("Failed to create renderer: ");
+    public static Renderer Create(Properties properties) {
+        var handle = SDL_CreateRendererWithProperties(properties);
+        if (handle is null) throw new SdlException("Failed to create renderer: ");
+        return new Renderer(handle);
     }
     
     public void AddVulkanRenderSemaphores(uint waitStageMask, long waitSemaphore, long signalSemaphore) => 

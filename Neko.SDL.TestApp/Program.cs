@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Numerics;
 using System.Reflection;
 using ImGuiNET;
+using Neko.Sdl.Events;
 using Neko.Sdl.Extra.Dialog;
 using Neko.Sdl.Extra.StandardLibrary;
 using Neko.Sdl.ImGuiBackend;
@@ -34,7 +35,7 @@ internal class Program {
 
         // Create window with SDL_Renderer graphics context
         const WindowFlags windowFlags = WindowFlags.Opengl | WindowFlags.Resizable | WindowFlags.Hidden;
-        var window = new Window(1280, 720, "Dear ImGui SDL3+SDL_Renderer example", windowFlags);
+        var window = Window.Create(1280, 720, "Dear ImGui SDL3+SDL_Renderer example", windowFlags);
         var renderer = window.CreateRenderer();
         renderer.VSync = 0;
         window.Position = new Point((int)SDL3.SDL_WINDOWPOS_CENTERED, (int)SDL3.SDL_WINDOWPOS_CENTERED);
@@ -86,12 +87,12 @@ internal class Program {
             // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application, or clear/overwrite your copy of the mouse data.
             // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application, or clear/overwrite your copy of the keyboard data.
             // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
-            SDL_Event e;
-            while (SDL3.SDL_PollEvent(&e)) {
-                backend.ProcessEvent(&e);
-                if (e.Type == SDL_EventType.SDL_EVENT_QUIT)
+            Event e = new Event();
+            while (EventQueue.Poll(ref e)) {
+                backend.ProcessEvent(ref e);
+                if (e.Type == EventType.Quit)
                     done = true;
-                if (e.Type == SDL_EventType.SDL_EVENT_WINDOW_CLOSE_REQUESTED && e.window.windowID == (SDL_WindowID)window.Id)
+                if (e.Type == EventType.WindowCloseRequested && e.Window.WindowId == window.Id)
                     done = true;
             }
             if (window.Flags.HasFlag(WindowFlags.Minimized)) {

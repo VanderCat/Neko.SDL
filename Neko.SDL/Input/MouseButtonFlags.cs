@@ -2,7 +2,7 @@ using Neko.Sdl.CodeGen;
 
 namespace Neko.Sdl.Input;
 
-[GenEnum(nameof(SDL_MouseButtonFlags), "SDL_MOUSE_BUTTON_")]
+[GenEnum(nameof(SDL_MouseButtonFlags), "SDL_BUTTON_")]
 file enum MouseButtonFlags {
     
 }

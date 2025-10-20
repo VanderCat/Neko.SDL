@@ -2,6 +2,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
+using Neko.Sdl.Events;
 using Neko.Sdl.Extra;
 using Neko.Sdl.Extra.StandardLibrary;
 
@@ -75,7 +76,7 @@ internal static unsafe class EntryPointImpl {
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
     private static SDL_AppResult AppEvent(IntPtr apppointer, SDL_Event* @event) {
         try {
-            return (SDL_AppResult)(_application?.Event(@event) ?? AppResult.Failure);
+            return (SDL_AppResult)(_application?.Event(ref Unsafe.AsRef<Event>(@event)) ?? AppResult.Failure);
         } catch (Exception e) {
             Log.Critical(0, e.ToString());
             return SDL_AppResult.SDL_APP_FAILURE;

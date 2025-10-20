@@ -1,10 +1,11 @@
+using Neko.Sdl.Events;
 using Neko.Sdl.Input;
 using Neko.Sdl.Video;
 using SDL;
 
 namespace Neko.Sdl.Tests;
 
-public class MyWindow() : Window(800, 600, "hello", WindowFlags.Resizable | WindowFlags.HighPixelDensity) {
+public class MyWindow : Window {
 
     public bool FlashScreen = false;
     public float Frame = 0f;
@@ -15,7 +16,7 @@ public class MyWindow() : Window(800, 600, "hello", WindowFlags.Resizable | Wind
                 FlashScreen = false;
                 Console.WriteLine("flash!");
             }
-            PollEvents();
+            EventQueue.Poll();
             Renderer.DrawColorF = new ColorF(MathF.Sin(Frame) / 2 + 0.5f, MathF.Sin(Frame) / 2 + 0.5f, 0.3f);
             Renderer.Clear();
             Renderer.Present();

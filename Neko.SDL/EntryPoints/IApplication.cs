@@ -35,7 +35,7 @@ public interface IApplication {
     /// returns <see cref="AppResult.Success"/>, SDL calls SDL_AppQuit and terminates with an exit code that
     /// reports success to the platform.
     /// </remarks>
-    public AppResult Event(Event @event);
+    public AppResult Event(ref Event @event);
     
     /// <summary>
     /// Initial entry point
