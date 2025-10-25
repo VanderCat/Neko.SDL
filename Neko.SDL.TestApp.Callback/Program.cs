@@ -22,11 +22,11 @@ public class Program : IApplication {
     public bool showDemoWindow = true;
     public bool showAnotherWindow = false;
     public Vector4 clearColor = new Vector4(0.45f, 0.55f, 0.60f, 1.00f);
-    public AppResult Event(ref Event @event) {
+    public AppResult Event(Event @event) {
         //Log.Verbose(0,$"got event {@event.EventType}");
         if (@event.Type == EventType.Quit)
             return AppResult.Success;
-        ImGuiSdl.ProcessEvent(ref @event);
+        ImGuiSdl.ProcessEvent(@event);
         return AppResult.Continue;
     }
     public AppResult Init(string[] args) {

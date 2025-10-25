@@ -31,7 +31,7 @@ public static unsafe class EventQueue {
         try {
             var funcPin = new Pin<EventFilter>(userdata);
             if (funcPin.TryGetTarget(out var func))
-                return func(ref Unsafe.AsRef<Event>(@event));
+                return func(Event.Create(@event));
         }
         catch (Exception e) {
             Log.Error(0, e.ToString());
@@ -213,7 +213,6 @@ public static unsafe class EventQueue {
     /// <summary>
     /// Poll for currently pending events
     /// </summary>
-    /// <param name="event">the SDL_Event structure to be filled with the next event from the queue</param>
     /// <returns>true if this got an event or false if there are none available</returns>
     /// <remarks>
     /// The next event is removed from the queue and stored in the <see cref="Event"/> structure pointed to by event.
@@ -222,7 +221,7 @@ public static unsafe class EventQueue {
     /// As this function may implicitly call <see cref="Pump"/>, you can only call this function in the thread that set
     /// the video mode.
     /// <br/><br/>
-    /// <see cref="Poll(ref Event)"/> is the favored way of receiving system events since it can be done from the main
+    /// <see cref="Poll(Event)"/> is the favored way of receiving system events since it can be done from the main
     /// loop and does not suspend the main loop while waiting on an event to be posted.
     /// <br/><br/>
     /// The common practice is to fully process the event queue once every frame, usually as a first step before
@@ -237,15 +236,19 @@ public static unsafe class EventQueue {
     /// <example>
     /// <code>
     /// while (game_is_still_running) {
-    ///     Event event = new Event();
-    ///     while (EventQueue.Poll(ref event)) {  // poll until all events are handled!
+    ///     while (EventQueue.Poll(out var event)) {  // poll until all events are handled!
     ///         // decide what to do with this event.
     ///     }
     ///     // update game state, draw the current frame
     /// }
     /// </code>
     /// </example>
-    public static bool Poll(ref Event @event) => SDL_PollEvent((SDL_Event*)Unsafe.AsPointer(ref @event));
+    public static bool Poll(out Event @event) {
+        var nya = new SDL_Event();
+        var result = SDL_PollEvent(&nya);
+        @event = Event.Create(ref nya);
+        return result;
+    }
     
     /// <summary>
     /// Poll for currently pending events
@@ -253,7 +256,7 @@ public static unsafe class EventQueue {
     /// <returns>true if this got an event or false if there are none available</returns>
     /// <remarks>
     /// It simply returns true if there is an event in the queue, but will not remove it from the queue. For more
-    /// information see <see cref="Poll(ref Event)"/>
+    /// information see <see cref="Poll(Event)"/>
     /// </remarks>
     public static bool Poll() => SDL_PollEvent(null);
 
@@ -275,7 +278,7 @@ public static unsafe class EventQueue {
     /// For pushing application-specific events, please use <see cref="Register"/> to get an event type that does not
     /// conflict with other code that also wants its own custom event types.
     /// </remarks>
-    public static void Push(ref Event @event) => SDL_PushEvent((SDL_Event*)Unsafe.AsPointer(ref @event)).ThrowIfError();
+    public static void Push(Event @event) => SDL_PushEvent((SDL_Event*)Unsafe.AsPointer(ref @event._backingStruct)).ThrowIfError();
 
     /// <summary>
     /// Allocate a set of user-defined events, and return the beginning event number for that set of events
@@ -296,7 +299,11 @@ public static unsafe class EventQueue {
     /// As this function may implicitly call <see cref="Pump"/>, you can only call this function in the thread that
     /// initialized the video subsystem.
     /// </remarks>
-    public static void Wait(ref Event @event) => SDL_WaitEvent((SDL_Event*)Unsafe.AsPointer(ref @event)).ThrowIfError();
+    public static Event Wait() {
+        var @event = new SDL_Event();
+        SDL_WaitEvent(&@event).ThrowIfError();
+        return Event.Create(ref @event);
+    }
 
     /// <summary>
     /// Wait indefinitely for the next available event
@@ -305,8 +312,8 @@ public static unsafe class EventQueue {
     /// As this function may implicitly call <see cref="Pump"/>, you can only call this function in the thread that
     /// initialized the video subsystem.
     /// </remarks>
-    public static void Wait() => SDL_WaitEvent(null);
-    
+    public static void WaitOnly() => SDL_WaitEvent(null);
+
     /// <summary>
     /// Wait indefinitely for the next available event
     /// </summary>
@@ -319,8 +326,11 @@ public static unsafe class EventQueue {
     /// initialized the video subsystem.
     /// <br/><br/>
     /// </remarks>
-    public static void Wait(ref Event @event, int timeoutMs) => 
-        SDL_WaitEventTimeout((SDL_Event*)Unsafe.AsPointer(ref @event), timeoutMs).ThrowIfError();
+    public static Event Wait(int timeoutMs) {
+        var @event = new SDL_Event();
+        SDL_WaitEventTimeout(&@event, timeoutMs).ThrowIfError();
+        return Event.Create(ref @event);
+    }
 
     /// <summary>
     /// Wait indefinitely for the next available event
@@ -332,5 +342,5 @@ public static unsafe class EventQueue {
     /// <br/><br/>
     /// The timeout is not guaranteed, the actual wait time could be longer due to system scheduling.
     /// </remarks>
-    public static void Wait(int timeoutMs) => SDL_WaitEventTimeout(null, timeoutMs);
+    public static void WaitOnly(int timeoutMs) => SDL_WaitEventTimeout(null, timeoutMs);
 }

@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 using System.Text;
+using Neko.Sdl.Events;
 using Neko.Sdl.Extra;
 using Neko.Sdl.Extra.StandardLibrary;
 
@@ -24,4 +25,7 @@ internal static unsafe class Util {
         var ptr = UnmanagedMemory.Malloc((nuint)buf.Length);
         return (byte*)UnmanagedMemory.Copy(buf, new Span<byte>((void*)ptr, buf.Length));
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static EventType EventType(this ref SDL_Event @event) => (EventType)@event.Type;
 }

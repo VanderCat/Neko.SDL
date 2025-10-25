@@ -1,3 +1,3 @@
 namespace Neko.Sdl.Events;
 
-public delegate bool EventFilter(ref Event @event);
+public delegate bool EventFilter(Event @event);

@@ -33,7 +33,7 @@ public abstract unsafe class MainCallbacksTest : IApplication {
         return AppResult.Continue;
     }
 
-    public AppResult Event(ref Event e) {
+    public AppResult Event(Event e) {
         switch (e.Type) {
             case EventType.Quit:
             case EventType.WindowCloseRequested:

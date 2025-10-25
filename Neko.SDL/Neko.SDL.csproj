@@ -18,4 +18,8 @@
       <ProjectReference Include="..\Neko.SDL.CodeGen\Neko.SDL.CodeGen.csproj" OutputItemType="Analyzer" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Events\Events\" />
+    </ItemGroup>
+
 </Project>

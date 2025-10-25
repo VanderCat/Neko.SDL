@@ -81,7 +81,7 @@ public static unsafe class ImGuiSdl {
     // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application, or clear/overwrite your copy of the keyboard data.
     // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
     // If you have multiple SDL events and some of them are not meant to be used by dear imgui, you may need to filter events based on their windowID field.
-    public static bool ProcessEvent(ref Event e) {
+    public static bool ProcessEvent(Event e) {
         if (_backend is null) 
             throw new Exception("Context or backend not initialized! Did you call Init()?");
         return true;
