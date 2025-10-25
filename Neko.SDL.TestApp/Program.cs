@@ -7,6 +7,7 @@ using Neko.Sdl.Events;
 using Neko.Sdl.Extra.Dialog;
 using Neko.Sdl.Extra.StandardLibrary;
 using Neko.Sdl.ImGuiBackend;
+using Neko.Sdl.Ttf;
 using Neko.Sdl.Video;
 using SDL;
 
@@ -26,6 +27,12 @@ internal class Program {
         // Setup SDL
         AppMetadata.Set(AppDomain.CurrentDomain.FriendlyName, Assembly.GetEntryAssembly()!.GetName().Version!.ToString(), "nekosdl.testapp");
         NekoSDL.Init(InitFlags.Video | InitFlags.Gamepad);
+        
+        Font.Init();
+        var fontStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Neko.Sdl.Sample.font.ttf");
+        var font = Font.Open(IOStream.Open(fontStream), 16);
+        
+        
         FileDialog.ShowOpenFolder((filelist, index) => {
             if (filelist is null) return;
             foreach (var file in filelist) {
@@ -40,6 +47,10 @@ internal class Program {
         renderer.VSync = 0;
         window.Position = new Point((int)SDL3.SDL_WINDOWPOS_CENTERED, (int)SDL3.SDL_WINDOWPOS_CENTERED);
         window.Show();
+
+        var textEngine = TextEngine.CreateRenderer(renderer);
+        var text = textEngine.CreateText(font, "Hello world!");
+        text.SetColor(new ColorF(0f, 0f, 0f));
 
         // Setup Dear ImGui context
         ImGui.CreateContext();
@@ -178,6 +189,7 @@ internal class Program {
             //SDL_RenderSetScale(renderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
             renderer.DrawColorF = new ColorF(clearColor);
             renderer.Clear();
+            Text.DrawRenderer(text, 48, 48);
             ImGuiSdlRenderer.RenderDrawData(ImGui.GetDrawData(), renderer);
             renderer.Present();
             if (io.ConfigFlags.HasFlag(ImGuiConfigFlags.ViewportsEnable)) {
@@ -194,6 +206,7 @@ internal class Program {
 
         renderer.Dispose();
         window.Dispose();
+        Font.Quit();
         NekoSDL.Quit();
         man.Check();
     }

@@ -16,6 +16,7 @@ public class SdlHintsSourceGenerator : ISourceGenerator
     public void Execute(GeneratorExecutionContext context)
     {
         // Find the SDL class
+        if (context.Compilation.AssemblyName != "Neko.SDL") return;
         var sdlClass = context.Compilation.GetTypeByMetadataName("SDL.SDL3");
         if (sdlClass == null) return;
 

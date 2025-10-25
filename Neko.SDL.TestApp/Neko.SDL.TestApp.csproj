@@ -12,7 +12,13 @@
     <ItemGroup>
       <ProjectReference Include="..\Neko.SDL.ImGui.SDLRenderer\Neko.SDL.ImGui.SDLRenderer.csproj" />
       <ProjectReference Include="..\Neko.SDL.ImGui\Neko.SDL.ImGui.csproj" />
+      <ProjectReference Include="..\Neko.SDL.TTF\Neko.SDL.TTF.csproj" />
       <ProjectReference Include="..\Neko.SDL\Neko.SDL.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="font.ttf" />
+      <EmbeddedResource Include="font.ttf" />
     </ItemGroup>
 
 </Project>

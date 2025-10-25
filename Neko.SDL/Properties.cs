@@ -5,7 +5,23 @@ using System.Text;
 
 namespace Neko.Sdl;
 
-public sealed partial class Properties : IDisposable, IEnumerable<string> {
+/// <summary>
+/// A property is a variable that can be created and retrieved by name at runtime.
+/// <br/><br/>
+/// All properties are part of a property group (SDL_PropertiesID). A property group can be created
+/// with the constructor and destroyed with the Dispose function.
+/// <br/><br/>
+/// Properties can be added to and retrieved from a property group through the following functions:
+/// <br/><br/>
+/// <see cref="SetPointer"/> and <see cref="GetPointer"/> operate on <see cref="IntPtr"/> pointer types. <br/>
+/// <see cref="SetString"/> and <see cref="GetString(SDL.Utf8String,string?)"/> operate on string types.<br/>
+/// <see cref="SetNumber"/> and <see cref="GetNumber"/> operate on signed 64-bit integer types.<br/>
+/// <see cref="SetFloat"/> and <see cref="GetFloat"/> operate on floating point types.<br/>
+/// <see cref="SetBoolean"/> and <see cref="GetBoolean"/> operate on boolean types.<br/>
+/// <br/><br/>
+/// Properties can be removed from a group by using <see cref="Clear"/>.
+/// </summary>
+public partial class Properties : IDisposable, IEnumerable<string> {
     public static implicit operator SDL_PropertiesID(Properties p) => (SDL_PropertiesID)p.Id;
     public static explicit operator Properties(SDL_PropertiesID id) => new(id);
     public uint Id { get; } 
@@ -18,8 +34,15 @@ public sealed partial class Properties : IDisposable, IEnumerable<string> {
         Global = (Properties)id;
     }
     
+    /// <summary>
+    /// Create a group of properties
+    /// </summary>
+    /// <remarks>
+    /// All properties are automatically destroyed when SDL_Quit() is called.
+    /// </remarks>
     public Properties() {
         Id = (uint)SDL_CreateProperties();
+        if (Id == 0) throw new SdlException();
     }
     
     // ReSharper disable once ConvertToPrimaryConstructor
@@ -31,18 +54,51 @@ public sealed partial class Properties : IDisposable, IEnumerable<string> {
         Id = (uint)id;
     }
 
+    /// <summary>
+    /// Destroy a group of properties
+    /// </summary>
+    /// <remarks>
+    /// All properties are deleted and their cleanup functions will be called, if any
+    /// </remarks>
     public void Dispose() {
         SDL_DestroyProperties(this);
     }
 
+    /// <summary>
+    /// Copy a group of properties
+    /// </summary>
+    /// <param name="properties">the destination properties</param>
+    /// <remarks>
+    /// Copy all the properties from one group of properties to another,
+    /// with the exception of properties requiring cleanup (set using <see cref="SetPointerWithCleanup"/>),
+    /// which will not be copied. Any property that already exists on dst will be overwritten.
+    /// </remarks>
     public void CopyTo(Properties properties) =>
         SDL_CopyProperties(this, properties).ThrowIfError();
 
+    /// <summary>
+    /// Clear a property from a group of properties
+    /// </summary>
+    /// <param name="name">the name of the property to clear</param>
     public void Clear(Utf8String name) => 
         SDL_ClearProperty(this, name).ThrowIfError();
     
+    /// <summary>
+    /// Get a boolean property from a group of properties
+    /// </summary>
+    /// <param name="name">the name of the property to query</param>
+    /// <param name="defaultValue">the default value of the property</param>
+    /// <returns>the value of the property, or default_value if it is not set or not a boolean property</returns>
     public bool GetBoolean(Utf8String name, bool defaultValue) => 
         SDL_GetBooleanProperty(this, name, defaultValue);
+
+    public bool? GetBoolean(Utf8String name) {
+        byte a = 0xFF;
+        var result = SDL_GetBooleanProperty(this, name, Unsafe.As<byte, SDLBool>(ref a));
+        var result1 = Unsafe.As<SDLBool, byte>(ref result);
+        if (result1 == 0xFF) return null;
+        return result;
+    }
     
     public float GetFloat(Utf8String name, float defaultValue) => 
         SDL_GetFloatProperty(this, name, defaultValue);
@@ -54,7 +110,8 @@ public sealed partial class Properties : IDisposable, IEnumerable<string> {
 #pragma warning disable CS8603 // Possible null reference return.
         SDL_GetStringProperty(this, name, defaultValue);
 #pragma warning restore CS8603 // Possible null reference return.
-    
+    public string? GetString(Utf8String name) => SDL_GetStringProperty(this, name, null);
+
     public IntPtr GetPointer(Utf8String name, IntPtr defaultValue) => 
         SDL_GetPointerProperty(this, name, defaultValue);
     
@@ -82,6 +139,10 @@ public sealed partial class Properties : IDisposable, IEnumerable<string> {
     public void Lock() => SDL_LockProperties(this).ThrowIfError();
     public void Unlock() => SDL_UnlockProperties(this);
 
+    /// <summary>
+    /// Enumerate the properties contained in a group of properties
+    /// </summary>
+    /// <returns></returns>
     public IEnumerator<string> GetEnumerator() =>
         new PropertiesEnumerator(this);
 
