@@ -224,7 +224,7 @@ public static unsafe class UnmanagedMemory {
         if (dst.Length < src.Length) throw new ArgumentException();
         fixed(T* dstPtr = dst)
         fixed (T* srcPtr = src)
-            return Compare((IntPtr)dstPtr, (IntPtr)srcPtr, (nuint)src.Length);
+            return Copy((IntPtr)dstPtr, (IntPtr)srcPtr, (nuint)src.Length);
     }
     public static nint Move(nint dst, nint src, nuint len) => SDL_memmove(dst, src, len);
     public static nint Set(nint dst, int c, nuint len) => SDL_memset(dst, c, len);

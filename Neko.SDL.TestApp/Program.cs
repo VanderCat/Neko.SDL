@@ -1,8 +1,10 @@
-﻿using System.Drawing;
+﻿using System.Diagnostics;
+using System.Drawing;
 using System.Globalization;
 using System.Numerics;
 using System.Reflection;
 using ImGuiNET;
+using Neko.Sdl.Diagnostics;
 using Neko.Sdl.Events;
 using Neko.Sdl.Extra.Dialog;
 using Neko.Sdl.Extra.StandardLibrary;
@@ -10,12 +12,21 @@ using Neko.Sdl.ImGuiBackend;
 using Neko.Sdl.Ttf;
 using Neko.Sdl.Video;
 using SDL;
+using Debug = System.Diagnostics.Debug;
 
 namespace Neko.Sdl.Sample;
 
 internal class Program {
     [STAThread]
     public static unsafe void Main(string[] args) {
+        Diagnostics.Debug.AssertionHandler = data => {
+            Console.WriteLine("This code is ass. Process terminated.");
+            Console.WriteLine(data.Condition);
+            Console.WriteLine(new StackTrace());
+            return AssertState.Break;
+        };
+        Diagnostics.Debug.Assert("" is not null);
+        Diagnostics.Debug.AssertionHandler = null;
         var man = new SdlDebugUnmanagedMemoryManager();
         //UnmanagedMemory.SetFunctions(new NativeUnmanagedMemoryManager());
         int[] test = [0, 1337, 228, 69, -1, 12];

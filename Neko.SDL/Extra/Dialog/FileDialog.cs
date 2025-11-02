@@ -85,14 +85,10 @@ public static unsafe class FileDialog {
             var counter = 0;
             filtersArray = new SDL_DialogFileFilter[filters.Count];
             foreach (var (name, pattern) in filters) {
-                var nameBuf = Encoding.UTF8.GetBytes(name);
-                var patternBuf = Encoding.UTF8.GetBytes(pattern);
                 var filter = new SDL_DialogFileFilter {
-                    name = (byte*)UnmanagedMemory.Malloc((nuint)nameBuf.Length),
-                    pattern = (byte*)UnmanagedMemory.Malloc((nuint)patternBuf.Length),
+                    name = name.ToUnmanagedPointer(),
+                    pattern = pattern.ToUnmanagedPointer(),
                 };
-                UnmanagedMemory.Copy(nameBuf, new Span<byte>(filter.name, nameBuf.Length));
-                UnmanagedMemory.Copy(patternBuf, new Span<byte>(filter.pattern, patternBuf.Length));
                 filtersArray[counter++] = filter;
             }
             fixed(SDL_DialogFileFilter* filter = filtersArray)
@@ -149,14 +145,10 @@ public static unsafe class FileDialog {
             var counter = 0;
             filtersArray = new SDL_DialogFileFilter[filters.Count];
             foreach (var (name, pattern) in filters) {
-                var nameBuf = Encoding.UTF8.GetBytes(name);
-                var patternBuf = Encoding.UTF8.GetBytes(pattern);
                 var filter = new SDL_DialogFileFilter {
-                    name = (byte*)UnmanagedMemory.Malloc((nuint)nameBuf.Length),
-                    pattern = (byte*)UnmanagedMemory.Malloc((nuint)patternBuf.Length),
+                    name = name.ToUnmanagedPointer(),
+                    pattern = pattern.ToUnmanagedPointer(),
                 };
-                UnmanagedMemory.Copy(nameBuf, new Span<byte>(filter.name, nameBuf.Length));
-                UnmanagedMemory.Copy(patternBuf, new Span<byte>(filter.pattern, patternBuf.Length));
                 filtersArray[counter++] = filter;
             }
             fixed(SDL_DialogFileFilter* filter = filtersArray)

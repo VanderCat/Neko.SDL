@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
@@ -203,8 +204,9 @@ public abstract unsafe class Event {
             using var pin = _backingStruct.Pin();
             var ptr = (SDL_Event*)pin.Addr;
             var len = SDL_GetEventDescription(ptr, null, 0);
-            var buf = new byte[len+1];
-            fixed(byte* bufPtr = buf)
+            using var buf = Util.RentArray<byte>(len+1);
+            buf.Rented[len] = 0;
+            fixed(byte* bufPtr = buf.Rented)
                   SDL_GetEventDescription(ptr, bufPtr, buf.Length);
             return Encoding.UTF8.GetString(buf);
       }

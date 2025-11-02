@@ -436,8 +436,8 @@ public unsafe partial class Font : SdlWrapper<TTF_Font> {
     /// <returns></returns>
     public Size GetStringSize(string text) {
         int w, h;
-        var utf8str = Encoding.UTF8.GetBytes(text);
-        fixed(byte* utf8ptr = utf8str)
+        var utf8str = text.RentUtf8();
+        fixed(byte* utf8ptr = utf8str.Rented)
             TTF_GetStringSize(this, utf8ptr, (nuint)utf8str.Length, &w, &h).ThrowIfError();
         return new Size(w, h);
     }
@@ -454,8 +454,8 @@ public unsafe partial class Font : SdlWrapper<TTF_Font> {
     /// <returns></returns>
     public Size GetStringSize(string text, int wrapWidth) {
         int w, h;
-        var utf8str = Encoding.UTF8.GetBytes(text);
-        fixed(byte* utf8ptr = utf8str)
+        var utf8str = text.RentUtf8();
+        fixed(byte* utf8ptr = utf8str.Rented)
             TTF_GetStringSizeWrapped(this, utf8ptr, (nuint)utf8str.Length, wrapWidth, &w, &h).ThrowIfError();
         return new Size(w, h);
     }
@@ -473,8 +473,8 @@ public unsafe partial class Font : SdlWrapper<TTF_Font> {
     public (int width, nuint length) MeasureString(string text, int maxWidth) {
         int measuredWidth;
         nuint measuredLength;
-        var utf8str = Encoding.UTF8.GetBytes(text);
-        fixed(byte* utf8ptr = utf8str)
+        var utf8str = text.RentUtf8();
+        fixed(byte* utf8ptr = utf8str.Rented)
             TTF_MeasureString(this, utf8ptr, (nuint)utf8str.Length, maxWidth, &measuredWidth, &measuredLength).ThrowIfError();
         return new(measuredWidth, measuredLength);
     }

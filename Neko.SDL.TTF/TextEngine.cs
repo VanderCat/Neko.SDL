@@ -80,8 +80,8 @@ public unsafe partial class TextEngine : SdlWrapper<TTF_TextEngine> {
     /// <param name="text"></param>
     /// <returns></returns>
     public Text CreateText(Font font, string text) {
-        var utf8str = Encoding.UTF8.GetBytes(text);
-        fixed (byte* utf8ptr = utf8str) {
+        using var utf8str = text.RentUtf8();
+        fixed (byte* utf8ptr = utf8str.Rented) {
             var textObj = TTF_CreateText(this, font, utf8ptr, (nuint)utf8str.Length);
             if (textObj is null)
                 throw new SdlException();

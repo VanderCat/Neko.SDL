@@ -33,7 +33,7 @@ public static class Extensions {
         new(rectangle.x, rectangle.y, rectangle.w, rectangle.h);
 
 
-    internal unsafe class MarshalStringResult(byte** ptr) : IDisposable {
+    internal unsafe ref struct MarshalStringResult(byte** ptr) : IDisposable {
         public byte** Ptr = ptr;
         public static implicit operator byte**(MarshalStringResult o) => o.Ptr;
         public void Dispose() {
@@ -55,12 +55,7 @@ public static class Extensions {
         
         for (var i = 0; i < count-1; i++) {
             var s = list[i];
-            var utf8 = System.Text.Encoding.UTF8.GetBytes(s); 
-            
-            arrayPtr[i] = (byte*)UnmanagedMemory.Calloc((nuint)utf8.Length+1, 1);
-
-            fixed (byte* ptr = utf8)
-                Buffer.MemoryCopy(ptr, arrayPtr[i], utf8.Length, utf8.Length);
+            arrayPtr[i] = s.ToUnmanagedPointer(); 
         }
 
         // trailing null already present because we cleared memory
