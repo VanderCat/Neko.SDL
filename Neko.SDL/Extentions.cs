@@ -62,4 +62,6 @@ public static class Extensions {
         return new MarshalStringResult(arrayPtr);
     }
     
+     /// <inheritdoc cref="Rectangle.IsPointIn"/>
+    public static bool IsInRect(this ref Point p, ref Rectangle r) => Rectangle.IsPointIn(ref p, ref r);
 }

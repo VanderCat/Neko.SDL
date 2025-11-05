@@ -366,7 +366,7 @@ public unsafe partial class Font : SdlWrapper<TTF_Font> {
     /// <param name="ch"></param>
     /// <param name="image_type"></param>
     /// <returns></returns>
-    public Surface GetGlyphImage(uint ch, out ImageType imageType) {
+    public Video.Surface GetGlyphImage(uint ch, out ImageType imageType) {
         TTF_ImageType i;
         var a = TTF_GetGlyphImage(this, ch, &i);
         if (a == null)
@@ -381,7 +381,7 @@ public unsafe partial class Font : SdlWrapper<TTF_Font> {
     /// <param name="glyphIndex"></param>
     /// <param name="imageType"></param>
     /// <returns></returns>
-    public Surface GetGlyphImageForIndex(uint glyphIndex, out ImageType imageType) {
+    public Video.Surface GetGlyphImageForIndex(uint glyphIndex, out ImageType imageType) {
         TTF_ImageType i;
         var a = TTF_GetGlyphImageForIndex(this, glyphIndex, &i);
         if (a == null)
@@ -487,7 +487,7 @@ public unsafe partial class Font : SdlWrapper<TTF_Font> {
     /// <param name="length"></param>
     /// <param name="fg"></param>
     /// <returns></returns>
-    public Surface RenderText_Solid(byte* text, nint length, SDL_Color fg) {
+    public Video.Surface RenderText_Solid(byte* text, nint length, SDL_Color fg) {
         throw new NotImplementedException();
     }
 
@@ -500,7 +500,7 @@ public unsafe partial class Font : SdlWrapper<TTF_Font> {
     /// <param name="fg"></param>
     /// <param name="wrapLength"></param>
     /// <returns></returns>
-    public Surface RenderText_Solid(byte* text, nint length, SDL_Color fg, int wrapLength) {
+    public Video.Surface RenderText_Solid(byte* text, nint length, SDL_Color fg, int wrapLength) {
         throw new NotImplementedException();
     }
 
@@ -511,7 +511,7 @@ public unsafe partial class Font : SdlWrapper<TTF_Font> {
     /// <param name="ch"></param>
     /// <param name="fg"></param>
     /// <returns></returns>
-    public Surface RenderGlyph_Solid(uint ch, SDL_Color fg) {
+    public Video.Surface RenderGlyph_Solid(uint ch, SDL_Color fg) {
         throw new NotImplementedException();
     }
 
@@ -524,7 +524,7 @@ public unsafe partial class Font : SdlWrapper<TTF_Font> {
     /// <param name="fg"></param>
     /// <param name="bg"></param>
     /// <returns></returns>
-    public Surface RenderText_Shaded(byte* text, nint length, SDL_Color fg, SDL_Color bg) {
+    public Video.Surface RenderText_Shaded(byte* text, nint length, SDL_Color fg, SDL_Color bg) {
         throw new NotImplementedException();
     }
 
@@ -538,7 +538,7 @@ public unsafe partial class Font : SdlWrapper<TTF_Font> {
     /// <param name="bg"></param>
     /// <param name="wrap_width"></param>
     /// <returns></returns>
-    public Surface RenderText_Shaded(byte* text, nint length, SDL_Color fg, SDL_Color bg, int wrap_width) {
+    public Video.Surface RenderText_Shaded(byte* text, nint length, SDL_Color fg, SDL_Color bg, int wrap_width) {
         throw new NotImplementedException();
     }
 
@@ -550,7 +550,7 @@ public unsafe partial class Font : SdlWrapper<TTF_Font> {
     /// <param name="fg"></param>
     /// <param name="bg"></param>
     /// <returns></returns>
-    public Surface RenderGlyph_Shaded(uint ch, SDL_Color fg, SDL_Color bg) {
+    public Video.Surface RenderGlyph_Shaded(uint ch, SDL_Color fg, SDL_Color bg) {
         throw new NotImplementedException();
     }
 
@@ -562,7 +562,7 @@ public unsafe partial class Font : SdlWrapper<TTF_Font> {
     /// <param name="length"></param>
     /// <param name="fg"></param>
     /// <returns></returns>
-    public Surface RenderText_Blended(byte* text, nint length, SDL_Color fg) {
+    public Video.Surface RenderText_Blended(byte* text, nint length, SDL_Color fg) {
         throw new NotImplementedException();
     }
 
@@ -575,7 +575,7 @@ public unsafe partial class Font : SdlWrapper<TTF_Font> {
     /// <param name="fg"></param>
     /// <param name="wrap_width"></param>
     /// <returns></returns>
-    public Surface RenderText_Blended(byte* text, nint length, SDL_Color fg, int wrap_width) {
+    public Video.Surface RenderText_Blended(byte* text, nint length, SDL_Color fg, int wrap_width) {
         throw new NotImplementedException();
     }
 
@@ -586,7 +586,7 @@ public unsafe partial class Font : SdlWrapper<TTF_Font> {
     /// <param name="ch"></param>
     /// <param name="fg"></param>
     /// <returns></returns>
-    public Surface RenderGlyph_Blended(uint ch, SDL_Color fg) {
+    public Video.Surface RenderGlyph_Blended(uint ch, SDL_Color fg) {
         throw new NotImplementedException();
     }
 
@@ -599,7 +599,7 @@ public unsafe partial class Font : SdlWrapper<TTF_Font> {
     /// <param name="fg"></param>
     /// <param name="bg"></param>
     /// <returns></returns>
-    public Surface RenderText_LCD(string text, nuint length, Color fg, Color bg) => 
+    public Video.Surface RenderText_LCD(string text, nuint length, Color fg, Color bg) => 
         TTF_RenderText_LCD(this, text, length, Unsafe.As<Color, SDL_Color>(ref fg), Unsafe.As<Color, SDL_Color>(ref bg));
 
     /// <summary>
@@ -612,7 +612,7 @@ public unsafe partial class Font : SdlWrapper<TTF_Font> {
     /// <param name="bg"></param>
     /// <param name="wrapWidth"></param>
     /// <returns></returns>
-    public Surface RenderText_LCD(string text, nuint length, Color fg, Color bg, int wrapWidth) => 
+    public Video.Surface RenderText_LCD(string text, nuint length, Color fg, Color bg, int wrapWidth) => 
         TTF_RenderText_LCD_Wrapped(this, text, length, Unsafe.As<Color, SDL_Color>(ref fg), Unsafe.As<Color, SDL_Color>(ref bg), wrapWidth);
 
     /// <summary>
@@ -622,7 +622,7 @@ public unsafe partial class Font : SdlWrapper<TTF_Font> {
     /// <param name="fg"></param>
     /// <param name="bg"></param>
     /// <returns></returns>
-    public Surface RenderGlyph_LCD(uint ch, Color fg, Color bg) => 
+    public Video.Surface RenderGlyph_LCD(uint ch, Color fg, Color bg) => 
         TTF_RenderGlyph_LCD(this, ch, Unsafe.As<Color, SDL_Color>(ref fg), Unsafe.As<Color, SDL_Color>(ref bg));
 
     /// <summary>

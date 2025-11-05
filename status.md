@@ -124,16 +124,16 @@ Limited support, see remarks section of NekoSDL.EnterApp
 | SDL_SetLogPriorityPrefix        | ✅ Logging.Log.SetPriorityPrefix  |
 
 ### Assertions
-missing in ppy.SDL3, probably not bundled with release build, so no assertiona is available, use C# native stuff
-
-| Original Function              | Neko.SDL equivalent |
-|--------------------------------|---------------------|
-| SDL_GetAssertionHandler        | ❌ MISSING           |
-| SDL_GetAssertionReport         | ❌ MISSING           |
-| SDL_GetDefaultAssertionHandler | ❌ MISSING           |
-| SDL_ReportAssertion            | ❌ MISSING           |
-| SDL_ResetAssertionReport       | ❌ MISSING           |
-| SDL_SetAssertionHandler        | ❌ MISSING           |
+| Original Function              | Neko.SDL equivalent                         |
+|--------------------------------|---------------------------------------------|
+| SDL_GetAssertionHandler        | ✅ Diagnostics.Debug.AssertionHandler        |
+| SDL_GetAssertionReport         | ✅ Diagnostics.Debug.AssertionReport         |
+| SDL_GetDefaultAssertionHandler | ✅ Diagnostics.Debug.DefaultAssertionHandler |
+| SDL_ReportAssertion            | ❌ Internal                                  |
+| SDL_ResetAssertionReport       | ✅ Diagnostics.Debug.ResetAssertionReport    |
+| SDL_SetAssertionHandler        | ✅ Diagnostics.Debug.AssertionHandler        |
+| SDL_assert                     | ✅ Diagnostics.Debug.Assert                  |
+| SDL_assert_always              | ✅ Diagnostics.Debug.AssertRelease           |
 
 ### Querying SDL Version
 
@@ -368,21 +368,21 @@ missing in ppy.SDL3, probably not bundled with release build, so no assertiona i
 
 ### Pixel Formats and Conversion Routines
 
-| Original Function          | Neko.SDL equivalent |
-|----------------------------|---------------------|
-| SDL_CreatePalette          | ❌ MISSING           |
-| SDL_DestroyPalette         | ❌ MISSING           |
-| SDL_GetMasksForPixelFormat | ❌ MISSING           |
-| SDL_GetPixelFormatDetails  | ❌ MISSING           |
-| SDL_GetPixelFormatForMasks | ❌ MISSING           |
-| SDL_GetPixelFormatName     | ❌ MISSING           |
-| SDL_GetRGB                 | ❌ MISSING           |
-| SDL_GetRGBA                | ❌ MISSING           |
-| SDL_MapRGB                 | ❌ MISSING           |
-| SDL_MapRGBA                | ❌ MISSING           |
-| SDL_MapSurfaceRGB          | ❌ MISSING           |
-| SDL_MapSurfaceRGBA         | ❌ MISSING           |
-| SDL_SetPaletteColors       | ❌ MISSING           |
+| Original Function          | Neko.SDL equivalent                      |
+|----------------------------|------------------------------------------|
+| SDL_CreatePalette          | ✅ Video.Palette.Create                   |
+| SDL_DestroyPalette         | ✅ Video.Palette.Dispose                  |
+| SDL_GetMasksForPixelFormat | ✅ Video.PixelFormatExtensions.GetMasks   |
+| SDL_GetPixelFormatDetails  | ✅ Video.PixelFormatExtensions.GetDetails |
+| SDL_GetPixelFormatForMasks | ✅ Video.PixelFormatExtensions.GetForMask |
+| SDL_GetPixelFormatName     | ❌ Use PixelFormat.ToString               |
+| SDL_GetRGB                 | ✅ Color.GetRGB                           |
+| SDL_GetRGBA                | ✅ Color.GetRGBA                          |
+| SDL_MapRGB                 | ❌ MISSING                                |
+| SDL_MapRGBA                | ❌ MISSING                                |
+| SDL_MapSurfaceRGB          | ❌ MISSING                                |
+| SDL_MapSurfaceRGBA         | ❌ MISSING                                |
+| SDL_SetPaletteColors       | ✅ Video.Palette.SetColors                |
 
 ### Blend modes
 
@@ -392,26 +392,26 @@ missing in ppy.SDL3, probably not bundled with release build, so no assertiona i
 
 ### Rectangle Functions
 
-| Original Function                   | Neko.SDL equivalent |
-|-------------------------------------|---------------------|
-| SDL_GetRectAndLineIntersection      | ❌ MISSING           |
-| SDL_GetRectAndLineIntersectionFloat | ❌ MISSING           |
-| SDL_GetRectEnclosingPoints          | ❌ MISSING           |
-| SDL_GetRectEnclosingPointsFloat     | ❌ MISSING           |
-| SDL_GetRectIntersection             | ❌ MISSING           |
-| SDL_GetRectIntersectionFloat        | ❌ MISSING           |
-| SDL_GetRectUnion                    | ❌ MISSING           |
-| SDL_GetRectUnionFloat               | ❌ MISSING           |
-| SDL_HasRectIntersection             | ❌ MISSING           |
-| SDL_HasRectIntersectionFloat        | ❌ MISSING           |
-| SDL_PointInRect                     | ❌ MISSING           |
-| SDL_PointInRectFloat                | ❌ MISSING           |
-| SDL_RectEmpty                       | ❌ MISSING           |
-| SDL_RectEmptyFloat                  | ❌ MISSING           |
-| SDL_RectsEqual                      | ❌ MISSING           |
-| SDL_RectsEqualEpsilon               | ❌ MISSING           |
-| SDL_RectsEqualFloat                 | ❌ MISSING           |
-| SDL_RectToFRect                     | ❌ MISSING           |
+| Original Function                   | Neko.SDL equivalent            |
+|-------------------------------------|--------------------------------|
+| SDL_GetRectAndLineIntersection      | ✅ Rectangle.IntersectLine      |
+| SDL_GetRectAndLineIntersectionFloat | ❌ MISSING                      |
+| SDL_GetRectEnclosingPoints          | ✅ Rectangle.GetEnclosingPoints |
+| SDL_GetRectEnclosingPointsFloat     | ❌ MISSING                      |
+| SDL_GetRectIntersection             | ❌ MISSING                      |
+| SDL_GetRectIntersectionFloat        | ❌ MISSING                      |
+| SDL_GetRectUnion                    | ✅ Rectangle.Union              |
+| SDL_GetRectUnionFloat               | ❌ MISSING                      |
+| SDL_HasRectIntersection             | ✅ Rectangle.HasIntersection    |
+| SDL_HasRectIntersectionFloat        | ❌ MISSING                      |
+| SDL_PointInRect                     | ✅ Rectangle.IsPointIn          |
+| SDL_PointInRectFloat                | ❌ MISSING                      |
+| SDL_RectEmpty                       | ✅ Rectangle.Empty              |
+| SDL_RectEmptyFloat                  | ❌ MISSING                      |
+| SDL_RectsEqual                      | ✅ Rectangle.Equals             |
+| SDL_RectsEqualEpsilon               | ❌ MISSING                      |
+| SDL_RectsEqualFloat                 | ❌ MISSING                      |
+| SDL_RectToFRect                     | ❌ MISSING                      |
 
 ### Surface Creation and Simple Drawing
 
@@ -701,11 +701,11 @@ NOTE: this implements stream so you can do any C# stream shenanigans
 
 ## Additional Functionality
 ### Shared Object/DLL Management
-| Original Function  | Neko.SDL equivalent                   |
-|--------------------|---------------------------------------|
-| SDL_LoadFunction   | Extra.NativeSharedObject.Load         |
-| SDL_LoadObject     | Extra.NativeSharedObject.LoadFunction |
-| SDL_UnloadObject   | Extra.NativeSharedObject.Dispose      |
+| Original Function  | Neko.SDL equivalent                     |
+|--------------------|-----------------------------------------|
+| SDL_LoadFunction   | ✅ Extra.NativeSharedObject.Load         |
+| SDL_LoadObject     | ✅ Extra.NativeSharedObject.LoadFunction |
+| SDL_UnloadObject   | ✅ Extra.NativeSharedObject.Dispose      |
 
 ### Process
 | Original Function               | Neko.SDL equivalent  |
@@ -720,6 +720,9 @@ NOTE: this implements stream so you can do any C# stream shenanigans
 | SDL_ReadProcess                 | ✅ Process.Read       |
 | SDL_WaitProcess                 | ✅ Process.Wait       |
 ### Power Management Status
+| Original Function                | Neko.SDL equivalent        |
+|----------------------------------|----------------------------|
+| SDL_GetPowerInfo                 | ✅ BatteryStatus.PowerState |
 ### Message Boxes
 ### File Dialogs
 | Original Function                | Neko.SDL equivalent         |
@@ -731,6 +734,42 @@ NOTE: this implements stream so you can do any C# stream shenanigans
 ### System Tray
 ### Locale Info
 ### Platform-specific Functionality
+| Original Function                              | Neko.SDL equivalent                 |
+|------------------------------------------------|-------------------------------------|
+| SDL_GetAndroidActivity                         | ✅ Extra.System.Android              |
+| SDL_GetAndroidCachePath                        | ✅ Extra.System.Android              |
+| SDL_GetAndroidExternalStoragePath              | ✅ Extra.System.Android              |
+| SDL_GetAndroidExternalStorageState             | ✅ Extra.System.Android              |
+| SDL_GetAndroidInternalStoragePath              | ✅ Extra.System.Android              |
+| SDL_GetAndroidJNIEnv                           | ✅ Extra.System.Android              |
+| SDL_GetAndroidSDKVersion                       | ✅ Extra.System.Android              |
+| SDL_GetDirect3D9AdapterIndex                   | ✅ Extra.System.Direct3D9            |
+| SDL_GetDXGIOutputInfo                          | ✅ Extra.System.Direct3D9            |
+| SDL_GetGDKDefaultUser                          | ✅ Extra.System.GDK                  |
+| SDL_GetGDKTaskQueue                            | ✅ Extra.System.GDK                  |
+| SDL_GetSandbox                                 | ✅ FileDialog.Show                   |
+| SDL_IsChromebook                               | ✅ Extra.System.Android              |
+| SDL_IsDeXMode                                  | ✅ Extra.System.Android              |
+| SDL_IsTablet                                   | ✅ Extra.System.OperatingSystemExtra |
+| SDL_IsTV                                       | ✅ Extra.System.OperatingSystemExtra |
+| SDL_OnApplicationDidChangeStatusBarOrientation | ✅ FileDialog.Show                   |
+| SDL_OnApplicationDidEnterBackground            | ✅ FileDialog.Show                   |
+| SDL_OnApplicationDidEnterForeground            | ✅ FileDialog.Show                   |
+| SDL_OnApplicationDidReceiveMemoryWarning       | ✅ FileDialog.Show                   |
+| SDL_OnApplicationWillEnterBackground           | ✅ FileDialog.Show                   |
+| SDL_OnApplicationWillEnterForeground           | ✅ FileDialog.Show                   |
+| SDL_OnApplicationWillTerminate                 | ✅ FileDialog.Show                   |
+| SDL_RequestAndroidPermission                   | ✅ FileDialog.Show                   |
+| SDL_SendAndroidBackButton                      | ✅ FileDialog.Show                   |
+| SDL_SendAndroidMessage                         | ✅ FileDialog.Show                   |
+| SDL_SetiOSAnimationCallback                    | ✅ FileDialog.Show                   |
+| SDL_SetiOSEventPump                            | ✅ FileDialog.Show                   |
+| SDL_SetLinuxThreadPriority                     | ✅ FileDialog.Show                   |
+| SDL_SetLinuxThreadPriorityAndPolicy            | ✅ FileDialog.Show                   |
+| SDL_SetWindowsMessageHook                      | ✅ FileDialog.Show                   |
+| SDL_SetX11EventHook                            | ✅ FileDialog.Show                   |
+| SDL_ShowAndroidToast                           | ✅ FileDialog.Show                   |
+
 ### Standard Library Functionality
 ### GUIDs
 ### Miscellaneous

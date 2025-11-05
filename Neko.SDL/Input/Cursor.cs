@@ -3,7 +3,7 @@ using Neko.Sdl.Video;
 namespace Neko.Sdl.Input;
 
 public unsafe partial class Cursor : SdlWrapper<SDL_Cursor> {
-    public static Cursor CreateColor(Surface surface, int hotX, int hotY) {
+    public static Cursor CreateColor(Video.Surface surface, int hotX, int hotY) {
         var ptr = SDL_CreateColorCursor(surface, hotX, hotY);
         if (ptr is null) throw new SdlException("");
         return ptr;
