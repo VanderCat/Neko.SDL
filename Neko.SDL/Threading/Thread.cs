@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -232,5 +233,28 @@ public unsafe partial class Thread : SdlWrapper<SDL_Thread> {
     public void Wait(out int exitcode) {
         exitcode = 0;
         SDL_WaitThread(this, (int*)Unsafe.AsPointer(ref exitcode));
+    }
+    
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
+    private static void RunOnMainThreadNativeFunc(IntPtr userdata) {
+        var pin = new Pin<Action>(userdata, true);
+        if (!pin.TryGetTarget(out var target))
+            SdlException.Error = new ArgumentException(nameof(userdata)).ToString();
+        try {
+            target!();
+        }
+        catch (Exception e) {
+            SdlException.Error = e.ToString();
+        }
+        finally {
+            pin.Dispose();
+        }
+    }
+    
+    public static void RunOnMain(Action action, bool waitComplete = false) {
+        SDL_RunOnMainThread(&RunOnMainThreadNativeFunc, action.Pin(GCHandleType.Normal).Pointer, waitComplete).ThrowIfError();
+        if (SdlException.HasError)
+            throw new SdlException();
+        
     }
 }

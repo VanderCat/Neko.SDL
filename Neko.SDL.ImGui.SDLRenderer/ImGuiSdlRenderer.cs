@@ -287,7 +287,7 @@ public static unsafe class ImGuiSdlRenderer {
         // Upload texture to graphics system
         // (Bilinear sampling is required by default. Set 'io.Fonts->Flags |= ImFontAtlasFlags_NoBakedLines' or 'style.AntiAliasedLinesUseTex = false' to allow point/nearest sampling)
         // fixme: little endian support only
-        _data.FontTexture = new Texture(_data.Renderer, PixelFormat.Abgr8888, TextureAccess.SdlTextureaccessStatic, width, height);
+        _data.FontTexture = new Texture(_data.Renderer, PixelFormat.Abgr8888, TextureAccess.Static, width, height);
         if (_data.FontTexture is null) 
             throw new Exception("error creating texture");
         

@@ -13,6 +13,7 @@ using Neko.Sdl.Ttf;
 using Neko.Sdl.Video;
 using SDL;
 using Debug = System.Diagnostics.Debug;
+using Thread = Neko.Sdl.Threading.Thread;
 
 namespace Neko.Sdl.Sample;
 
@@ -43,7 +44,10 @@ internal class Program {
         var fontStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Neko.Sdl.Sample.font.ttf");
         var font = Font.Open(IOStream.Open(fontStream), 16);
         
-        
+        Thread.RunOnMain(() =>
+        {
+            throw new NotImplementedException();
+        });
         FileDialog.ShowOpenFolder((filelist, index) => {
             if (filelist is null) return;
             foreach (var file in filelist) {

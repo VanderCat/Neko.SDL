@@ -27,6 +27,15 @@ public sealed unsafe partial class Window : SdlWrapper<SDL_Window> {
         window._pin = window.Pin(GCHandleType.Normal);
         return window;
     }
+    public static Window Create(Properties properties) { //TODO: WindowCreateProperties
+        var handle = SDL_CreateWindowWithProperties(properties);
+        if (handle is null) throw new SdlException("Failed to open window");
+        var window = new Window(handle);
+        __windowIdCache[window.Id] = window;
+        
+        window._pin = window.Pin(GCHandleType.Normal);
+        return window;
+    }
 
     public static void CreateWindowAndRenderer(int width, int height, string title, WindowFlags windowFlags, out Window window, out Renderer renderer) {
         window = Create(width, height, title, windowFlags);

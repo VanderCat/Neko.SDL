@@ -1,6 +1,6 @@
 namespace Neko.Sdl.Video;
 
-public partial unsafe class Palette : SdlWrapper<SDL_Palette> {
+public unsafe partial class Palette : SdlWrapper<SDL_Palette> {
     /// <summary>
     /// Create a palette structure with the specified number of color entries.
     /// </summary>

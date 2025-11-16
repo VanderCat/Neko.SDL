@@ -534,7 +534,6 @@ public unsafe class SdlPlatformBackend : IPlatformBackend, IViewportBackend {
     public bool ProcessEvent(Event ev) {
         var io = ImGui.GetIO();
         var type = ev.Type;
-        var e = (SDL_Event*)Unsafe.AsPointer(ref ev); //TODO:
         ImGuiViewportPtr viewport;
         switch (type) {
             case EventType.MouseMotion:
