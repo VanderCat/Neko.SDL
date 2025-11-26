@@ -30,11 +30,11 @@ internal class Program {
         var man = new SdlDebugUnmanagedMemoryManager();
         //UnmanagedMemory.SetFunctions(new NativeUnmanagedMemoryManager());
         int[] test = [0, 1337, 228, 69, -1, 12];
-        test.QSort((ref int a, ref int b) => {
-            if (a < b)
-                return -1;
-            return b < a ? 1 : 0;
-        });
+        // test.QSort((ref int a, ref int b) => {
+        //     if (a < b)
+        //         return -1;
+        //     return b < a ? 1 : 0;
+        // });
         // Setup SDL
         AppMetadata.Set(AppDomain.CurrentDomain.FriendlyName, Assembly.GetEntryAssembly()!.GetName().Version!.ToString(), "nekosdl.testapp");
         NekoSDL.Init(InitFlags.Video | InitFlags.Gamepad);

@@ -9,37 +9,58 @@ using Neko.Sdl.Extra.StandardLibrary;
 namespace Neko.Sdl.EntryPoints;
 
 internal static unsafe class EntryPointImpl {
-    private static IApplication? _application;
-    private static AppMainFunction? _mainFunction;
-    private static string[] _args = [];
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static AppMainFunction CallbackFunctionFactory(IApplication application) => 
-        args => {
-            Enter(application, args);
+    private static AppMainFunction2 CallbackFunctionFactory(IApplication application) =>
+        (argc, argv) => {
+            Enter(application, argv, argc);
             return -1;
         };
+    
+    private ref struct Arguments : IDisposable {
+        public static byte*[] Argv; 
+        public Arguments(string[] args) {
+            Argv = new byte*[args.Length + 2];
+            var i1 = 2;
+            foreach (var arg in args) {
+                using var argUtf8 = arg.RentUtf8();
+                var ptr = (byte*)UnmanagedMemory.Malloc((nuint)argUtf8.Length);
+                fixed(byte* argPtr = argUtf8)
+                    Unsafe.CopyBlock(ptr, argPtr, (uint)argUtf8.Length);
+                Argv[i1++] = ptr;
+            }
+        }
+
+        public ref byte* GetPinnableReference() => ref Argv[0];
+
+        public void Dispose() {
+            for (var i = 2; i < Argv.Length; i++) {
+                UnmanagedMemory.Free(Argv[i]);
+            }
+        }
+    }
+    
     public static void Run(string[] args, AppMainFunction mainFunction) {
-        if (_mainFunction is not null) 
-            throw new InvalidOperationException("Application already initialized");
-        _mainFunction = mainFunction;
-        _args = args;
-        var argv = (byte**)UnmanagedMemory.Calloc((nuint)IntPtr.Size, (nuint)args.Length+1);
-        var argc = 0;
-        foreach (var arg in args) {
-            argc += arg.Length + 1;
-        }
-        var arglist = (byte*)UnmanagedMemory.Calloc((nuint)IntPtr.Size, (nuint)argc);
-        var argCounter = arglist;
-        foreach (var arg in args) {
-            var argUtf8 = Encoding.UTF8.GetBytes(arg);
-            fixed(byte* argPtr = argUtf8)
-                Unsafe.CopyBlock(argCounter, argPtr, (uint)argUtf8.Length);
-            argCounter += arg.Length + 1;
-        }
+        using var argv = new Arguments(args);
+        fixed(byte** argptr = argv)
+            Run(mainFunction, args.Length, argptr);
+    }
+    
+    private static void Run(string[] args, AppMainFunction2 mainFunction) {
+        using var argv = new Arguments(args);
+        fixed(byte** argptr = argv)
+            Run(mainFunction, args.Length, &argptr[2]);
+    }
+    
+    private static void Run(AppMainFunction mainFunction, int argc, byte** argv) {
+        using var mainFunctionPin = mainFunction.Pin(GCHandleType.Normal);
+        argv[-1] = (byte*)mainFunctionPin.Pointer;
         SDL_RunApp(argc, argv, &AppMain, 0);
-        UnmanagedMemory.Free(arglist);
-        UnmanagedMemory.Free(argv);
+    }
+
+    private static void Run(AppMainFunction2 mainFunction, int argc, byte** argv) {
+        using var mainFunctionPin = mainFunction.Pin(GCHandleType.Normal);
+        argv[-1] = (byte*)mainFunctionPin.Pointer;
+        SDL_RunApp(argc, argv, &AppMain2, 0);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -48,63 +69,84 @@ internal static unsafe class EntryPointImpl {
     
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
     private static int AppMain(int argc, byte** argv) {
-        return _mainFunction?.Invoke(_args)??-1;
+        var pin = new Pin<AppMainFunction>(argv[-1]);
+        if (pin.TryGetTarget(out var main)) {
+            var args = new string[argc];
+            for (int i = 0; i < args.Length; i++) 
+                args[i] = Encoding.UTF8.GetString(MemoryMarshal.CreateReadOnlySpanFromNullTerminated(argv[i]));
+            return main(args);
+        }
+        return -1;
     }
     
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
+    private static int AppMain2(int argc, byte** argv) {
+        var pin = new Pin<AppMainFunction2>(argv[-1]);
+        if (pin.TryGetTarget(out var main))
+            return main(argc, argv);
+        return -1;
+    }
+    private static void Enter(IApplication application, byte** argv, int argc) {
+        using var applicationPin = application.Pin(GCHandleType.Normal);
+        argv[-2] = (byte*)applicationPin.Pointer;
+        SDL_EnterAppMainCallbacks(argc, argv, &AppInit, &AppIterate, &AppEvent, &AppQuit);
+    }
+
     public static void Enter(IApplication application, string[] args) {
-        if (_application is not null) throw new InvalidOperationException("Application already initialized");
-        _args = args;
-        var argv = (byte**)UnmanagedMemory.Calloc((nuint)IntPtr.Size, (nuint)args.Length+1);
-        var argc = 0;
-        foreach (var arg in args) {
-            argc += arg.Length + 1;
-        }
-        var arglist = (byte*)UnmanagedMemory.Calloc((nuint)IntPtr.Size, (nuint)argc);
-        var argCounter = arglist;
-        foreach (var arg in args) {
-            var argUtf8 = Encoding.UTF8.GetBytes(arg);
-            fixed(byte* argPtr = argUtf8)
-                Unsafe.CopyBlock(argCounter, argPtr, (uint)argUtf8.Length);
-            argCounter += arg.Length + 1;
-        }
-        _application = application;
-        SDL_EnterAppMainCallbacks(args.Length, argv, &AppInit, &AppIterate, &AppEvent, &AppQuit);
-        UnmanagedMemory.Free(arglist);
-        UnmanagedMemory.Free(argv);
+        using var argv = new Arguments(args);
+        fixed(byte** argptr = argv)
+            Enter(application, argptr, args.Length);
     }
 
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
     private static SDL_AppResult AppEvent(IntPtr apppointer, SDL_Event* @event) {
         try {
-            return (SDL_AppResult)(_application?.Event(Event.Create(@event)) ?? AppResult.Failure);
+            var pin = new Pin<IApplication>(apppointer);
+            if (pin.TryGetTarget(out var application))
+                return (SDL_AppResult)application.Event(Event.Create(@event));
         } catch (Exception e) {
+            SdlException.Error = e.ToString();
             Log.Critical(0, e.ToString());
-            return SDL_AppResult.SDL_APP_FAILURE;
         }
+        return SDL_AppResult.SDL_APP_FAILURE;
     }
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
     private static SDL_AppResult AppInit(IntPtr* apppointer, int argc, byte** argv) {
         try {
-            return (SDL_AppResult)(_application?.Init(_args) ?? AppResult.Failure);
+            var pin = new Pin<IApplication>(argv[-2]);
+            if (pin.TryGetTarget(out var application)) {
+                *apppointer = (nint)argv[-2];
+                var args = new string[argc];
+                for (int i = 0; i < args.Length; i++) 
+                    args[i] = Encoding.UTF8.GetString(MemoryMarshal.CreateReadOnlySpanFromNullTerminated(argv[i]));
+                return (SDL_AppResult)application.Init(args);
+            }
         } catch (Exception e) {
+            SdlException.Error = e.ToString();
             Log.Critical(0, e.ToString());
-            return SDL_AppResult.SDL_APP_FAILURE;
         }
+        return SDL_AppResult.SDL_APP_FAILURE;
     }
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
     private static SDL_AppResult AppIterate(IntPtr apppointer) {
         try {
-            return (SDL_AppResult)(_application?.Iterate() ?? AppResult.Failure);
+            var pin = new Pin<IApplication>(apppointer);
+            if (pin.TryGetTarget(out var application))
+                return (SDL_AppResult)application.Iterate();
         } catch (Exception e) {
+            SdlException.Error = e.ToString();
             Log.Critical(0, e.ToString());
-            return SDL_AppResult.SDL_APP_FAILURE;
         }
+        return SDL_AppResult.SDL_APP_FAILURE;
     }
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
     private static void AppQuit(IntPtr apppointer, SDL_AppResult result) {
         try {
-            _application?.Quit((AppResult)result);
+            var pin = new Pin<IApplication>(apppointer);
+            if (pin.TryGetTarget(out var application))
+                application.Quit((AppResult)result);
         } catch (Exception e) {
+            SdlException.Error = e.ToString();
             Log.Critical(0, e.ToString());
         }
     }

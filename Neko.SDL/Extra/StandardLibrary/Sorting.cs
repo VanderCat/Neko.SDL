@@ -1,8 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace Neko.Sdl.Extra.StandardLibrary;
 
+[RequiresDynamicCode("This class using PtrToStructure internally to dynamically sort objects as needed")]
 public static unsafe class Sorting {
     private struct Userdata {
         public Type Type;

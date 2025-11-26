@@ -22,14 +22,18 @@ public class Program : IApplication {
     public bool showDemoWindow = true;
     public bool showAnotherWindow = false;
     public Vector4 clearColor = new Vector4(0.45f, 0.55f, 0.60f, 1.00f);
+    private SdlPlatformBackend _backend;
     public AppResult Event(Event @event) {
-        //Log.Verbose(0,$"got event {@event.EventType}");
+        //Log.Verbose(0,$"got event {@event}");
         if (@event.Type == EventType.Quit)
             return AppResult.Success;
-        ImGuiSdl.ProcessEvent(@event);
+        _backend.ProcessEvent(@event);
         return AppResult.Continue;
     }
     public AppResult Init(string[] args) {
+        foreach (var arg in args) {
+            Console.WriteLine(arg);
+        }
         AppMetadata.Set(AppDomain.CurrentDomain.FriendlyName, Assembly.GetEntryAssembly()!.GetName().Version!.ToString(), "nekosdl.testapp.callback");
 
         NekoSDL.Init(InitFlags.Video);
@@ -52,7 +56,8 @@ public class Program : IApplication {
         //ImGui.StyleColorsLight();
 
         // Setup Platform/Renderer backends
-        //ImGuiSdl.InitForSDLRenderer(Window, Renderer);
+        _backend = new SdlPlatformBackend(Window, Renderer);
+        ImGuiSdl.Init(_backend);
         ImGuiSdlRenderer.Init(Renderer);
 
         // Load Fonts

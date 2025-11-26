@@ -59,6 +59,7 @@ internal static unsafe class Util {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => Rented.Length;
         }
+        public ref T GetPinnableReference() => ref ((Span<T>)Rented).GetPinnableReference();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
