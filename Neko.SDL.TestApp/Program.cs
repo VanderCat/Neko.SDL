@@ -7,6 +7,7 @@ using ImGuiNET;
 using Neko.Sdl.Diagnostics;
 using Neko.Sdl.Events;
 using Neko.Sdl.Extra.Dialog;
+using Neko.Sdl.Extra.MessageBox;
 using Neko.Sdl.Extra.StandardLibrary;
 using Neko.Sdl.ImGuiBackend;
 using Neko.Sdl.Ttf;
@@ -25,6 +26,17 @@ internal class Program {
             Console.WriteLine(new StackTrace());
             return AssertState.Break;
         };
+        var msg = new MessageBox();
+        msg.Buttons.Add(new MessageBoxButton {
+            Text = "meow",
+            ButtonId = 18,
+            Flags =  MessageBoxButtonFlags.ReturnKeyDefault,
+        });
+        msg.Title = "Meow alert";
+        msg.Message = "you have been meowed";
+        if (msg.Show() == 18) {
+            Console.WriteLine("Meow!!!");
+        }
         Diagnostics.Debug.Assert("" is not null);
         Diagnostics.Debug.AssertionHandler = null;
         var man = new SdlDebugUnmanagedMemoryManager();

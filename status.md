@@ -724,6 +724,10 @@ NOTE: this implements stream so you can do any C# stream shenanigans
 |----------------------------------|----------------------------|
 | SDL_GetPowerInfo                 | ✅ BatteryStatus.PowerState |
 ### Message Boxes
+| Original Function        | Neko.SDL equivalent                      |
+|--------------------------|------------------------------------------|
+| SDL_ShowMessageBox       | ✅ Extra.MessageBox.MessageBox.Show       |
+| SDL_ShowSimpleMessageBox | ✅ Extra.MessageBox.MessageBox.ShowSimple |
 ### File Dialogs
 | Original Function                | Neko.SDL equivalent         |
 |----------------------------------|-----------------------------|
