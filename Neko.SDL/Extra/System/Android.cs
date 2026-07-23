@@ -26,15 +26,50 @@ public static class Android {
     /// https://docs.oracle.com/javase/1.5.0/docs/guide/jni/spec/functions.html
     /// </para>
     /// </remarks>
-    public static IntPtr GetActivity() {
-        var result = SDL_GetAndroidActivity();
-        if (result == IntPtr.Zero)
-            throw new SdlException();
-        return result;
+    public static IntPtr Activity {
+        get {
+            var result = SDL_GetAndroidActivity();
+            if (result == IntPtr.Zero)
+                throw new SdlException();
+            return result;
+        }
     }
     
+    /// <summary>
+    /// Shows an Android toast notification.
+    /// </summary>
+    /// <param name="message">text message to be shown.</param>
+    /// <param name="duration">0=short, 1=long.</param>
+    /// <param name="gravity">where the notification should appear on the screen.</param>
+    /// <param name="xoffset"></param>
+    /// <param name="yoffset"></param>
+    /// <remarks>
+    /// <para>
+    /// Toasts are a sort of lightweight notification that are unique to Android.
+    /// </para>
+    /// <para>
+    /// https://developer.android.com/guide/topics/ui/notifiers/toasts
+    /// </para>
+    /// <para>
+    /// Shows toast in UI thread.
+    /// </para>
+    /// <para>
+    /// For the gravity parameter, choose a value from here, or -1 if you don't have a preference:
+    /// </para>
+    /// <para>
+    /// https://developer.android.com/reference/android/view/Gravity
+    /// </para>
+    /// </remarks>
     public static void ShowToast(string message, int duration, int gravity, int xoffset, int yoffset) => 
         SDL_ShowAndroidToast(message, duration, gravity, xoffset, yoffset).ThrowIfError();
+    
+    /// <summary>
+    /// Shows an Android toast notification.
+    /// </summary>
+    /// <param name="message">text message to be shown.</param>
+    /// <param name="duration">0=short, 1=long.</param>
+    public static void ShowToast(string message, int duration) => 
+        SDL_ShowAndroidToast(message, duration, -1, 0, 0).ThrowIfError();
 
     /// <summary>
     /// Get the path used for caching data for this Android application
@@ -61,6 +96,9 @@ public static class Android {
         }
     }
     
+    /// <summary>
+    /// Android API level of the current device.
+    /// </summary>
     public static int SdkVersion {
         get {
             var ptr = SDL_GetAndroidSDKVersion();
@@ -147,14 +185,74 @@ public static class Android {
         managedCallback(permissionString, granted);
     }
     
+    /// <summary>
+    /// Request permissions at runtime, asynchronously.
+    /// </summary>
+    /// <param name="permission">the permission to request.</param>
+    /// <param name="cb">the callback to trigger when the request has a response.</param>
+    /// <remarks>
+    /// <para>
+    /// You do not need to call this for built-in functionality of SDL; recording from a microphone or reading images
+    /// from a camera, using standard SDL APIs, will manage permission requests for you.
+    /// </para>
+    /// <para>
+    /// This function never blocks. Instead, the app-supplied callback will be called when a decision has been made.
+    /// This callback may happen on a different thread, and possibly much later, as it might wait on a user to respond
+    /// to a system dialog. If permission has already been granted for a specific entitlement, the callback will still
+    /// fire, probably on the current thread and before this function returns.
+    /// </para>
+    /// <para>
+    /// If the request submission fails, this function returns false and the callback will NOT be called, but this
+    /// should only happen in catastrophic conditions, like memory running out. Normally there will be a yes or no to
+    /// the request through the callback.
+    /// </para>
+    /// <para>
+    /// For the permission parameter, choose a value from here:
+    /// </para>
+    /// <para>
+    /// https://developer.android.com/reference/android/Manifest.permission
+    /// </para>
+    /// </remarks>
     public static unsafe void RequestPermission(string permission, RequestPermissionCallback cb) {
         var pin = cb.Pin(GCHandleType.Normal);
         SDL_RequestAndroidPermission(permission, &NativeCallback, pin.Addr).ThrowIfError();
     }
-
+    /// <summary>
+    /// Trigger the Android system back button behavior.
+    /// </summary>
     public static void SendBackButton() => SDL_SendAndroidBackButton();
+    
+    /// <summary>
+    /// Send a user command to SDLActivity.
+    /// </summary>
+    /// <param name="command">user command that must be greater or equal to 0x8000</param>
+    /// <param name="param">user parameter</param>
+    /// <remarks>
+    /// Override "boolean onUnhandledMessage(Message msg)" to handle the message.
+    /// </remarks>
     public static void SendMessage(uint command, int param) => SDL_SendAndroidMessage(command, param).ThrowIfError();
     
     public static bool IsChromebook => SDL_IsChromebook();
     public static bool IsDeXMode => SDL_IsDeXMode();
+
+    /// <summary>
+    /// A pointer to the Android Java Native Interface Environment to which the current thread is attached
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// This is the JNIEnv one needs to access the Java virtual machine from native code, and is needed for many Android
+    /// APIs to be usable from C.
+    /// </para>
+    /// <para>
+    /// The prototype of the function in SDL's code actually declare a void* return type, even if the implementation
+    /// returns a pointer to a JNIEnv. The rationale being that the SDL headers can avoid including jni.h.
+    /// </para>
+    /// </remarks>
+    public static IntPtr JniEnv {
+        get {
+            var a = SDL_GetAndroidJNIEnv();
+            if (a == 0) throw new SdlException("");
+            return a;
+        }
+    }
 }

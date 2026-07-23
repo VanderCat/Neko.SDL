@@ -145,11 +145,6 @@ public static class NekoSDL {
     /// Revision of SDL bindings were generated against
     /// </summary>
     public static string BindingsRevision => Encoding.UTF8.GetString(SDL_REVISION);
-
-    /// <summary>
-    /// Get the application sandbox environment, if any.
-    /// </summary>
-    public static Sandbox Sandbox => (Sandbox)SDL_GetSandbox();
     
     /// <summary>
     /// Open a URL/URI in the browser or other appropriate external application.

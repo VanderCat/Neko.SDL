@@ -21,19 +21,19 @@
 ### Application entry points
 Limited support, see remarks section of NekoSDL.EnterApp
 
-| Original Function         | Neko.SDL equivalent    |
-|---------------------------|------------------------|
-| SDL_AppEvent              | ✅ IApplication.Event   |
-| SDL_AppInit               | ✅ IApplication.Init    |
-| SDL_AppIterate            | ✅ IApplication.Iterate |
-| SDL_AppQuit               | ✅ IApplication.Quit    |
-| SDL_EnterAppMainCallbacks | ✅ NekoSDL.EnterApp     |
-| SDL_GDKSuspendComplete    | ❌ MISSING              |
-| SDL_main                  | ❌ NotSupported         |
-| SDL_RegisterApp           | ❌ MISSING              |
-| SDL_RunApp                | ✅ NekoSDL.Run          |
-| SDL_SetMainReady          | ❌ MISSING              |
-| SDL_UnregisterApp         | ❌ MISSING              |
+| Original Function         | Neko.SDL equivalent                  |
+|---------------------------|--------------------------------------|
+| SDL_AppEvent              | ✅ IApplication.Event                 |
+| SDL_AppInit               | ✅ IApplication.Init                  |
+| SDL_AppIterate            | ✅ IApplication.Iterate               |
+| SDL_AppQuit               | ✅ IApplication.Quit                  |
+| SDL_EnterAppMainCallbacks | ✅ NekoSDL.EnterApp                   |
+| SDL_GDKSuspendComplete    | ✅ Extra.System.GDK.SuspendComplete   |
+| SDL_main                  | ❌ NotSupported                       |
+| SDL_RegisterApp           | ✅ Extra.System.Windows.RegisterApp   |
+| SDL_RunApp                | ✅ NekoSDL.Run                        |
+| SDL_SetMainReady          | ❌ MISSING                            |
+| SDL_UnregisterApp         | ✅ Extra.System.Windows.UnregisterApp |
 
 
 ### Initialization and Shutdown
@@ -86,7 +86,7 @@ Limited support, see remarks section of NekoSDL.EnterApp
 | SDL_SetFloatProperty              | ✅ Properties.SetFloat               |
 | SDL_SetNumberProperty             | ✅ Properties.SetNumber              |
 | SDL_SetPointerProperty            | ✅ Properties.SetPointer             |
-| SDL_SetPointerPropertyWithCleanup | 🚧 Properties.SetPointerWithCleanup |
+| SDL_SetPointerPropertyWithCleanup | ✅ Properties.SetPointerWithCleanup |
 | SDL_SetStringProperty             | ✅ Properties.SetString              |
 | SDL_UnlockProperties              | ✅ Properties.Unlock                 |
 
@@ -734,41 +734,37 @@ NOTE: this implements stream so you can do any C# stream shenanigans
 ### System Tray
 ### Locale Info
 ### Platform-specific Functionality
-| Original Function                              | Neko.SDL equivalent                 |
-|------------------------------------------------|-------------------------------------|
-| SDL_GetAndroidActivity                         | ✅ Extra.System.Android              |
-| SDL_GetAndroidCachePath                        | ✅ Extra.System.Android              |
-| SDL_GetAndroidExternalStoragePath              | ✅ Extra.System.Android              |
-| SDL_GetAndroidExternalStorageState             | ✅ Extra.System.Android              |
-| SDL_GetAndroidInternalStoragePath              | ✅ Extra.System.Android              |
-| SDL_GetAndroidJNIEnv                           | ✅ Extra.System.Android              |
-| SDL_GetAndroidSDKVersion                       | ✅ Extra.System.Android              |
-| SDL_GetDirect3D9AdapterIndex                   | ✅ Extra.System.Direct3D9            |
-| SDL_GetDXGIOutputInfo                          | ✅ Extra.System.Direct3D9            |
-| SDL_GetGDKDefaultUser                          | ✅ Extra.System.GDK                  |
-| SDL_GetGDKTaskQueue                            | ✅ Extra.System.GDK                  |
-| SDL_GetSandbox                                 | ✅ FileDialog.Show                   |
-| SDL_IsChromebook                               | ✅ Extra.System.Android              |
-| SDL_IsDeXMode                                  | ✅ Extra.System.Android              |
-| SDL_IsTablet                                   | ✅ Extra.System.OperatingSystemExtra |
-| SDL_IsTV                                       | ✅ Extra.System.OperatingSystemExtra |
-| SDL_OnApplicationDidChangeStatusBarOrientation | ✅ FileDialog.Show                   |
-| SDL_OnApplicationDidEnterBackground            | ✅ FileDialog.Show                   |
-| SDL_OnApplicationDidEnterForeground            | ✅ FileDialog.Show                   |
-| SDL_OnApplicationDidReceiveMemoryWarning       | ✅ FileDialog.Show                   |
-| SDL_OnApplicationWillEnterBackground           | ✅ FileDialog.Show                   |
-| SDL_OnApplicationWillEnterForeground           | ✅ FileDialog.Show                   |
-| SDL_OnApplicationWillTerminate                 | ✅ FileDialog.Show                   |
-| SDL_RequestAndroidPermission                   | ✅ FileDialog.Show                   |
-| SDL_SendAndroidBackButton                      | ✅ FileDialog.Show                   |
-| SDL_SendAndroidMessage                         | ✅ FileDialog.Show                   |
-| SDL_SetiOSAnimationCallback                    | ✅ FileDialog.Show                   |
-| SDL_SetiOSEventPump                            | ✅ FileDialog.Show                   |
-| SDL_SetLinuxThreadPriority                     | ✅ FileDialog.Show                   |
-| SDL_SetLinuxThreadPriorityAndPolicy            | ✅ FileDialog.Show                   |
-| SDL_SetWindowsMessageHook                      | ✅ FileDialog.Show                   |
-| SDL_SetX11EventHook                            | ✅ FileDialog.Show                   |
-| SDL_ShowAndroidToast                           | ✅ FileDialog.Show                   |
+| Original Function                        | Neko.SDL equivalent                             |
+|------------------------------------------|-------------------------------------------------|
+| SDL_GetAndroidActivity                   | ✅ Extra.System.Android.Activity                 |
+| SDL_GetAndroidCachePath                  | ✅ Extra.System.Android.CachePath                |
+| SDL_GetAndroidExternalStoragePath        | ✅ Extra.System.Android.ExternalStoragePath      |
+| SDL_GetAndroidExternalStorageState       | ✅ Extra.System.Android.ExternalStorageState     |
+| SDL_GetAndroidInternalStoragePath        | ✅ Extra.System.Android.InternalStoragePath      |
+| SDL_GetAndroidJNIEnv                     | ✅ Extra.System.Android.JniEnv                   |
+| SDL_GetAndroidSDKVersion                 | ✅ Extra.System.Android.SdkVersion               |
+| SDL_GetDeviceFormFactor                  | ❌ Missing                                       |
+| SDL_GetDeviceFormFactorName              | ❌ Missing                                       |
+| SDL_GetDirect3D9AdapterIndex             | ✅ Extra.System.Direct3D9.GetD3DAdapterIndex     |
+| SDL_GetDXGIOutputInfo                    | ✅ Extra.System.Direct3D9.GetDxgiOutputInfo      |
+| SDL_GetGDKDefaultUser                    | ✅ Extra.System.GDK.DefaultUser                  |
+| SDL_GetGDKTaskQueue                      | ✅ Extra.System.GDK.TaskQueue                    |
+| SDL_GetSandbox                           | ✅ Extra.System.OperatingSystemExtra.Sandbox     |
+| SDL_IsChromebook                         | ✅ Extra.System.Android.IsChromebook             |
+| SDL_IsDeXMode                            | ✅ Extra.System.Android.IsDeXMode                |
+| SDL_IsTablet                             | ✅ Extra.System.OperatingSystemExtra.IsTablet    |
+| SDL_IsTV                                 | ✅ Extra.System.OperatingSystemExtra.IsTV        |
+| SDL_OnApplication*                       | ✅ Extra.System.iOS.OnApplication*               |
+| SDL_RequestAndroidPermission             | ✅ Extra.System.Android.RequestPermission        |
+| SDL_SendAndroidBackButton                | ✅ Extra.System.Android.SendBackButton           |
+| SDL_SendAndroidMessage                   | ✅ Extra.System.Android.SendMessage              |
+| SDL_SetiOSAnimationCallback              | ✅ Extra.System.iOS.SetAnimationCallback         |
+| SDL_SetiOSEventPump                      | ✅ Extra.System.iOS.SetEventPump                 |
+| SDL_SetLinuxThreadPriority               | ✅ Extra.System.Linux.SetThreadPriority          |
+| SDL_SetLinuxThreadPriorityAndPolicy      | ✅ Extra.System.Linux.SetThreadPriorityAndPolicy |
+| SDL_SetWindowsMessageHook                | ✅ Extra.System.Windows.SetMessageHook           |
+| SDL_SetX11EventHook                      | ✅ Extra.System.Linux.SetX11EventHook            |
+| SDL_ShowAndroidToast                     | ✅ Extra.System.Android.ShowToast                |
 
 ### Standard Library Functionality
 ### GUIDs

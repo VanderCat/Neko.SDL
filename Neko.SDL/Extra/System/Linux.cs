@@ -6,9 +6,23 @@ namespace Neko.Sdl.Extra.System;
 
 [SupportedOSPlatform("Linux")]
 public static unsafe class Linux {
+    /// <summary>
+    /// Sets the UNIX nice value for a thread.
+    /// </summary>
+    /// <param name="threadId">the Unix thread ID to change priority of.</param>
+    /// <param name="priority">the new, Unix-specific, priority value.</param>
+    /// <remarks>
+    /// This uses setpriority() if possible, and RealtimeKit if available.
+    /// </remarks>
     public static void SetThreadPriority(long threadId, int priority) =>
         SDL_SetLinuxThreadPriority(threadId, priority).ThrowIfError();
     
+    /// <summary>
+    /// Sets the priority (not nice level) and scheduling policy for a thread.
+    /// </summary>
+    /// <param name="threadId">the Unix thread ID to change priority of.</param>
+    /// <param name="priority">the new SDL_ThreadPriority value.</param>
+    /// <param name="schedPolicy">the new scheduling policy (SCHED_FIFO, SCHED_RR, SCHED_OTHER, etc...).</param>
     public static void SetThreadPriorityAndPolicy(long threadId, int priority, int schedPolicy) =>
         SDL_SetLinuxThreadPriorityAndPolicy(threadId, priority, schedPolicy).ThrowIfError();
     

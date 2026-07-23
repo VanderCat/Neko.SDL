@@ -129,9 +129,45 @@ public partial class Properties : IDisposable, IEnumerable<string> {
     
     public void SetPointer(Utf8String name, IntPtr value) => 
         SDL_SetPointerProperty(this, name, value).ThrowIfError();
+
+    public unsafe void SetPointerWithCleanup(Utf8String name, IntPtr value, Action<IntPtr> release) {
+        var r = release.Pin(GCHandleType.Normal);
+        SDL_SetPointerPropertyWithCleanup(this, name, value, &PointerCleanup, r.Pointer).ThrowIfError();
+    }
+
+    public void SetObjectPinned(Utf8String name, object? obj) {
+        var o = obj.Pin(GCHandleType.Pinned);
+        SetPointerWithCleanup(name, o.Addr, nint => o.Dispose());
+    }
     
-    public void SetPointerWithCleanup(Utf8String name, IntPtr value) => 
-        throw new NotImplementedException();
+    public void SetObject(Utf8String name, object? obj) {
+        var o = obj.Pin(GCHandleType.Normal);
+        SetPointerWithCleanup(name, o.Pointer, nint => o.Dispose());
+    }
+    
+    public void SetObjectWithCleanup(Utf8String name, IDisposable obj) {
+        var o = obj.Pin(GCHandleType.Normal);
+        SetPointerWithCleanup(name, o.Pointer, nint => {
+            var a = nint.AsPin<IDisposable>(true);
+            if (a.TryGetTarget(out var d)) {
+                d.Dispose();
+            }
+        });
+    }
+
+    public object? GetObject(Utf8String name) {
+        var ptr = GetPointer(name, IntPtr.MaxValue);
+        if (ptr == IntPtr.MaxValue)
+            return null;
+        return ptr.AsPin<object>().Target;
+    }
+
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
+    private static void PointerCleanup(IntPtr value, IntPtr userdata) {
+        using var udata = userdata.AsPin<Action<IntPtr>>(true);
+        if (udata.TryGetTarget(out var fn))
+            fn(value);
+    }
 
     public PropertyType GetUnderlyingType(Utf8String name) =>
         (PropertyType)(int)SDL_GetPropertyType(this, name);
