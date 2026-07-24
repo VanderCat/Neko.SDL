@@ -18,7 +18,7 @@ public unsafe class IOStream : Stream {
                 return native.Length;
             }
             catch (Exception e) {
-                SDL_SetErrorV(e.ToString().Replace("%", "%%"), null);
+                SdlException.Error = e.ToString();
                 return -1;
             }
         }
@@ -30,7 +30,7 @@ public unsafe class IOStream : Stream {
                 return stream.Seek(offset, (SeekOrigin)whence);
             }
             catch (Exception e) {
-                SDL_SetErrorV(e.ToString().Replace("%", "%%"), null);
+                SdlException.Error = e.ToString();
                 return -1;
             }
         }
@@ -46,7 +46,7 @@ public unsafe class IOStream : Stream {
             }
             catch (Exception e) {
                 *status = SDL_IOStatus.SDL_IO_STATUS_ERROR;
-                SDL_SetErrorV(e.ToString().Replace("%", "%%"), null);
+                SdlException.Error = e.ToString();
                 return 0;
             }
         }
@@ -60,7 +60,7 @@ public unsafe class IOStream : Stream {
             }
             catch (Exception e) {
                 *status = SDL_IOStatus.SDL_IO_STATUS_ERROR;
-                SDL_SetErrorV(e.ToString().Replace("%", "%%"), null);
+                SdlException.Error = e.ToString();
                 return 0;
             }
         }
@@ -74,7 +74,7 @@ public unsafe class IOStream : Stream {
             }
             catch (Exception e) {
                 *status = SDL_IOStatus.SDL_IO_STATUS_ERROR;
-                SDL_SetErrorV(e.ToString().Replace("%", "%%"), null);
+                SdlException.Error = e.ToString();
                 return false;
             }
         }
@@ -87,7 +87,7 @@ public unsafe class IOStream : Stream {
                 return true;
             }
             catch (Exception e) {
-                SDL_SetErrorV(e.ToString().Replace("%", "%%"), null);
+                SdlException.Error = e.ToString();
                 return false;
             }
         }

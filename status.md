@@ -8,7 +8,7 @@
 7. Threads - ~100%
 8. Filesystem - ~75%
 9. Platform and CPU Information - Unknown
-10. Additional Functionality - ~30%
+10. Additional Functionality - ~70% (libc wrappings are not finished)
 
 # Curently wrapped functions
 
@@ -148,9 +148,9 @@ Limited support, see remarks section of NekoSDL.EnterApp
 
 | Original Function                   | Neko.SDL equivalent                                   |
 |-------------------------------------|-------------------------------------------------------|
-| SDL_CreatePopupWindow               | ❌ MISSING                                             |
+| SDL_CreatePopupWindow               | ✅ Video.Window.CreatePopup                            |
 | SDL_CreateWindow                    | ✅ Video.Window.Create                                 |
-| SDL_CreateWindowWithProperties      | ❌ MISSING                                             |
+| SDL_CreateWindowWithProperties      | ✅ Video.Window.Create                                             |
 | SDL_DestroyWindow                   | ✅ Video.Window.Dispose                                |
 | SDL_DestroyWindowSurface            | ❌ MISSING                                             |
 | SDL_DisableScreenSaver              | ✅ Video.Display.ScreenSaverEnabled                    |

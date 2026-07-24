@@ -8,6 +8,25 @@ using Neko.Sdl.Extra;
 using Neko.Sdl.Extra.StandardLibrary;
 
 namespace Neko.Sdl.Video;
+/// <summary>
+/// <para>
+/// SDL's video subsystem is largely interested in abstracting window management from the underlying operating system.
+/// You can create windows, manage them in various ways, set them fullscreen, and get events when interesting things
+/// happen with them, such as the mouse or keyboard interacting with a window.
+/// </para>
+/// <para>
+/// The video subsystem is also interested in abstracting away some platform-specific differences in OpenGL: context
+/// creation, swapping buffers, etc. This may be crucial to your app, but also you are not required to use OpenGL at
+/// all. In fact, SDL can provide rendering to those windows as well, either with an easy-to-use 2D API or with a
+/// more-powerful GPU API . Of course, it can simply get out of your way and give you the window handles you need to use
+/// Vulkan, Direct3D, Metal, or whatever else you like directly, too.
+/// </para>
+/// <para>
+/// The video subsystem covers a lot of functionality, out of necessity, so it is worth perusing the list of functions
+/// just to see what's available, but most apps can get by with simply creating a window and listening for events, so
+/// start with <see cref="Create"/> and <see cref="Poll"/>.
+/// </para>
+/// </summary>
 
 public sealed unsafe partial class Window : SdlWrapper<SDL_Window> {
     public Renderer? Renderer;
@@ -18,19 +37,221 @@ public sealed unsafe partial class Window : SdlWrapper<SDL_Window> {
         set => SDL_SetWindowAlwaysOnTop(Handle, value);
     }
     
-    public static Window Create(int width, int height, string title, WindowFlags windowFlags) {
-        var handle = SDL_CreateWindow(title, width, height, (SDL_WindowFlags)windowFlags);
+    /// <summary>
+    /// Create a window with the specified dimensions and flags.
+    /// </summary>
+    /// <param name="width">the width of the window.</param>
+    /// <param name="height">the height of the window.</param>
+    /// <param name="title">the title of the window.</param>
+    /// <param name="windowFlags">0, or one or more <see cref="WindowFlags"/> OR'd together.</param>
+    /// <returns>Returns the window that was created</returns>
+    /// <remarks>
+    /// <para>
+    /// The window size is a request and may be different than expected based on the desktop layout and window manager
+    /// policies. Your application should be prepared to handle a window of any size.
+    /// </para>
+    /// flags may be any of the following OR'd together:
+    /// <ul>
+    ///     <li><see cref="WindowFlags.Fullscreen"/>: fullscreen window at desktop resolution</li>
+    ///     <li><see cref="WindowFlags.Opengl"/>: window usable with an OpenGL context</li>
+    ///     <li><see cref="WindowFlags.Hidden"/>: window is not visible</li>
+    ///     <li><see cref="WindowFlags.Borderless"/>: no window decoration</li>
+    ///     <li><see cref="WindowFlags.Resizable"/>: window can be resized</li>
+    ///     <li><see cref="WindowFlags.Minimized"/>: window is minimized</li>
+    ///     <li><see cref="WindowFlags.Maximized"/>: window is maximized</li>
+    ///     <li><see cref="WindowFlags.MouseGrabbed"/>: window has grabbed mouse focus</li>
+    ///     <li><see cref="WindowFlags.InputFocus"/>: window has input focus</li>
+    ///     <li><see cref="WindowFlags.MouseFocus"/>: window has mouse focus</li>
+    ///     <li><see cref="WindowFlags.External"/>: window not created by SDL</li>
+    ///     <li><see cref="WindowFlags.Modal"/>: window is modal</li>
+    ///     <li><see cref="WindowFlags.HighPixelDensity"/>: window uses high pixel density back buffer if possible</li>
+    ///     <li><see cref="WindowFlags.MouseCapture"/>: window has mouse captured (unrelated to MOUSE_GRABBED)</li>
+    ///     <li><see cref="WindowFlags.AlwaysOnTop"/>: window should always be above others</li>
+    ///     <li><see cref="WindowFlags.Utility"/>: window should be treated as a utility window, not showing in the task bar and window list</li>
+    ///     <li><see cref="WindowFlags.Tooltip"/>: window should be treated as a tooltip and does not get mouse or keyboard focus, requires a parent window</li>
+    ///     <li><see cref="WindowFlags.PopupMenu"/>: window should be treated as a popup menu, requires a parent window</li>
+    ///     <li><see cref="WindowFlags.KeyboardGrabbed"/>: window has grabbed keyboard input</li>
+    ///     <li><see cref="WindowFlags.Vulkan"/>: window usable with a Vulkan instance</li>
+    ///     <li><see cref="WindowFlags.Metal"/>: window usable with a Metal instance</li>
+    ///     <li><see cref="WindowFlags.Transparent"/>: window with transparent buffer</li>
+    ///     <li><see cref="WindowFlags.NotFocusable"/>: window should not be focusable</li>
+    /// </ul>
+    /// <para>
+    /// The <see cref="Window"/> will be shown if <see cref="WindowFlags.Hidden"/> is not set. If hidden at creation
+    /// time, <see cref="Show"/> can be used to show it later.
+    /// </para>
+    /// <para>
+    /// On Apple's macOS, you must set the NSHighResolutionCapable Info.plist property to YES, otherwise you will not
+    /// receive a High-DPI OpenGL canvas.
+    /// </para>
+    /// <para>
+    /// The window pixel size may differ from its window coordinate size if the window is on a high pixel density
+    /// display. Use <see cref="Size"/> to query the client area's size in window coordinates, and
+    /// <see cref="SizeInPixels"/> or (TODO:)<see cref="SDL_GetRenderOutputSize"/> to query the drawable size in pixels.
+    /// Note that the drawable size can vary after the window is created and should be queried again if you get an
+    /// <see cref="Neko.Sdl.Events.EventType.WindowPixelSizeChanged"/> event.
+    /// </para>
+    /// <para>
+    /// If the window is created with any of the <see cref="WindowFlags.Opengl"/> or <see cref="WindowFlags.Vulkan"/>
+    /// flags, then the corresponding LoadLibrary function (<see cref="Gl.LoadLibrary"/> or
+    /// <see cref="Vulkan.LoadLibrary()"/>) is called and the corresponding UnloadLibrary function is called by
+    /// <see cref="Dispose"/>.
+    /// </para>
+    /// <para>
+    /// If <see cref="WindowFlags.Vulkan"/> is specified and there isn't a working Vulkan driver, <see cref="Create"/>
+    /// will fail, because <see cref="Vulkan.LoadLibrary()"/> will fail.
+    /// </para>
+    /// <para>
+    /// If <see cref="WindowFlags.Metal"/> is specified on an OS that does not support Metal, <see cref="Create"/> will
+    /// fail.
+    /// </para>
+    /// <para>
+    /// If you intend to use this window with an <see cref="Neko.Sdl.Video.Renderer"/>, you should use
+    /// <see cref="CreateWindowAndRenderer"/> instead of this function, to avoid window flicker.
+    /// </para>
+    /// <para>
+    /// On non-Apple devices, SDL requires you to either not link to the Vulkan loader or link to a dynamic library
+    /// version. This limitation may be removed in a future version of SDL.
+    /// </para>
+    /// </remarks>
+    public static Window Create(int width, int height, string? title, WindowFlags windowFlags) {
+        using var props = new WindowCreateProperties();
+        if (!string.IsNullOrEmpty(title))
+            props.Title = title;
+        props.Width = width;
+        props.Height = height;
+        props.Flags = (long)windowFlags;
+        return Create(props);
+    }
+
+    /// <summary>
+    /// Create a child popup window of the parent window.
+    /// </summary>
+    /// <param name="offsetX">the x position of the popup window relative to the origin of the parent.</param>
+    /// <param name="offsetY">the y position of the popup window relative to the origin of the parent window.</param>
+    /// <param name="w">the width of the window.</param>
+    /// <param name="h">the height of the window.</param>
+    /// <param name="flags">
+    /// <see cref="Neko.Sdl.Video.WindowFlags.Tooltip"/> or <see cref="Neko.Sdl.Video.WindowFlags.PopupMenu"/>, and zero
+    /// or more additional <see cref="Neko.Sdl.Video.WindowFlags"/> OR'd together.</param>
+    /// <returns>Returns the window that was created</returns>
+    /// <exception cref="SdlException"></exception>
+    /// <remarks>
+    /// <para>
+    /// The window size is a request and may be different than expected based on the desktop layout and window manager
+    /// policies. Your application should be prepared to handle a window of any size.
+    /// </para>
+    /// The flags parameter must contain at least one of the following:
+    ///<ul>
+    ///     <li>
+    ///         <see cref="Neko.Sdl.Video.WindowFlags.Tooltip"/>: The popup window is a tooltip and will not pass any
+    ///         input events.
+    ///     </li>
+    ///     <li>
+    ///         <see cref="Neko.Sdl.Video.WindowFlags.PopupMenu"/>: The popup window is a popup menu. The topmost popup
+    ///         menu will implicitly gain the keyboard focus.
+    ///     </li>
+    /// </ul>
+    /// The following flags are not relevant to popup window creation and will be ignored:
+    /// <ul>
+    ///     <li><see cref="Neko.Sdl.Video.WindowFlags.Minimized"/></li>
+    ///     <li><see cref="Neko.Sdl.Video.WindowFlags.Maximized"/></li>
+    ///     <li><see cref="Neko.Sdl.Video.WindowFlags.Fullscreen"/></li>
+    ///     <li><see cref="Neko.Sdl.Video.WindowFlags.Borderless"/></li>
+    /// </ul>
+    /// The following flags are incompatible with popup window creation and will cause it to fail:
+    /// <ul>
+    ///     <li><see cref="Neko.Sdl.Video.WindowFlags.Utility"/></li>
+    ///     <li><see cref="Neko.Sdl.Video.WindowFlags.Modal"/></li>
+    /// </ul>
+    /// <para>
+    /// The parent parameter must be non-null and a valid window. The parent of a popup window can be either a regular,
+    /// toplevel window, or another popup window.
+    /// </para>
+    /// <para>
+    /// Popup windows cannot be minimized, maximized, made fullscreen, raised, flash, be made a modal window, be the
+    /// parent of a toplevel window, or grab the mouse and/or keyboard. Attempts to do so will fail.
+    /// </para>
+    /// <para>
+    /// Popup windows implicitly do not have a border/decorations and do not appear on the taskbar/dock or in lists of
+    /// windows such as alt-tab menus.
+    /// </para>
+    /// <para>
+    /// By default, popup window positions will automatically be constrained to keep the entire window within display
+    /// bounds. This can be overridden with the SDL_PROP_WINDOW_CREATE_CONSTRAIN_POPUP_BOOLEAN property.
+    /// </para>
+    /// <para>
+    /// By default, popup menus will automatically grab keyboard focus from the parent when shown. This behavior can be
+    /// overridden by setting the <see cref="Neko.Sdl.Video.WindowFlags.NotFocusable"/> flag, setting the
+    /// SDL_PROP_WINDOW_CREATE_FOCUSABLE_BOOLEAN property to false, or toggling it after creation via the
+    /// <see cref="Focusable"/> property.
+    /// </para>
+    /// <para>
+    /// If a parent window is hidden or destroyed, any child popup windows will be recursively hidden or destroyed as
+    /// well. Child popup windows not explicitly hidden will be restored when the parent is shown.
+    /// </para>
+    /// </remarks>
+    public Window CreatePopup(int offsetX, int offsetY, int w, int h, WindowFlags flags = WindowFlags.PopupMenu) {
+        using var props = new WindowCreateProperties();
+
+        // Popups must specify either the tooltip or popup menu window flags
+        if (flags is not WindowFlags.Tooltip && flags is not WindowFlags.PopupMenu)
+            throw new ArgumentException(
+                "Popup windows must specify either the 'WindowFlags.Tooltip' or the 'WindowFlags.PopupMenu' flag",
+                nameof(flags));
+        
+        props.Parent = this;
+        props.X = offsetX;
+        props.Y = offsetY;
+        props.Width = w;
+        props.Height = h;
+        props.Flags = (long)flags;
+        var window = Create(props);
+
+        return window;
+    }
+
+    internal Window? _parent;
+    internal List<Window> _children = [];
+
+    /// <summary>
+    /// Create a window and default renderer.
+    /// </summary>
+    /// <param name="width">the width of the window.</param>
+    /// <param name="height">the height of the window.</param>
+    /// <param name="title">the title of the window.</param>
+    /// <param name="windowFlags">the flags used to create the window (see <see cref="Create"/>).</param>
+    /// <param name="renderer">the result renderer.</param>
+    public static Window CreateWithRenderer(int width, int height, string title, WindowFlags windowFlags, out Renderer renderer) {
+        // Hide the window so if the renderer recreates it, we don't get a visual flash on screen
+        var hidden = (windowFlags & WindowFlags.Hidden) != 0;
+        windowFlags |= WindowFlags.Hidden;
+        var window = Create(width, height, title, windowFlags);
+
+        try {
+            renderer = Renderer.Create(window);
+        }
+        finally {
+            window.Dispose();
+        }
+
+        if (!hidden)
+            window.Show();
+
+        return window;
+    }
+
+    public static Window Create(WindowCreateProperties properties) {
+        var handle = SDL_CreateWindowWithProperties(properties);
         if (handle is null) throw new SdlException("Failed to open window");
         var window = new Window(handle);
         __windowIdCache[window.Id] = window;
         
+        window._parent = properties.Parent;
+        properties.Parent?._children.Add(window);
+        
         window._pin = window.Pin(GCHandleType.Normal);
         return window;
-    }
-
-    public static void CreateWindowAndRenderer(int width, int height, string title, WindowFlags windowFlags, out Window window, out Renderer renderer) {
-        window = Create(width, height, title, windowFlags);
-        renderer = window.CreateRenderer();
     }
 
     private static Dictionary<uint, Window> __windowIdCache = new();
@@ -346,6 +567,11 @@ public sealed unsafe partial class Window : SdlWrapper<SDL_Window> {
     public override void Dispose() {
         base.Dispose();
         __windowIdCache.Remove(Id);
+        foreach (var child in _children) {
+            child.Destroy();
+        }
+        _children = null;
+        _parent = null;
         Destroy();
         Renderer?.Dispose();
         _pin.Dispose();
