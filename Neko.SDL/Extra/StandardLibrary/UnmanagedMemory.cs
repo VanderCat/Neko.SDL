@@ -5,6 +5,11 @@ using System.Runtime.InteropServices;
 namespace Neko.Sdl.Extra.StandardLibrary;
 
 public static unsafe class UnmanagedMemory {
+
+    /// <summary>
+    /// The number of outstanding (unfreed) allocations or -1 if allocation counting is disabled.
+    /// </summary>
+    public static int NumAllocations => SDL_GetNumAllocations();
     
     /// <summary>
     /// Allocate a zero-initialized array
@@ -119,6 +124,28 @@ public static unsafe class UnmanagedMemory {
     public static nint AlignedAlloc(nuint alignment, nuint size) {
         return SDL_aligned_alloc(alignment, size);
     }
+    // TODO: 3.6.0
+    // /// <summary>
+    // /// Allocate zero-initialized memory aligned to a specific alignment.
+    // /// </summary>
+    // /// <param name="alignment">the alignment of the memory.</param>
+    // /// <param name="size">the size to allocate.</param>
+    // /// <returns>Returns a pointer to the aligned memory, or NULL if allocation failed.</returns>
+    // /// <remarks>
+    // /// <para>
+    // /// The memory returned by this function must be freed with <see cref="AlignedFree(IntPtr)"/>, not <see cref="Free(IntPtr)"/>..
+    // /// </para>
+    // /// <para>
+    // /// If alignment is less than the size of void *, it will be increased to match that.
+    // /// </para>
+    // /// <para>
+    // /// The returned memory address will be a multiple of the alignment value, and the size of the memory allocated will
+    // /// be a multiple of the alignment value.
+    // /// </para>
+    // /// </remarks>
+    // public static nint AlignedAllocZero(nuint alignment, nuint size) {
+    //     return SDL_aligned_alloc_zero(alignment, size);
+    // }
 
     /// <summary>
     /// Free memory allocated by <see cref="AlignedAlloc"/>

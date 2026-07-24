@@ -737,6 +737,9 @@ NOTE: this implements stream so you can do any C# stream shenanigans
 | SDL_ShowSaveFileDialog           | ✅ FileDialog.ShowSave       |
 ### System Tray
 ### Locale Info
+| Original Function       | Neko.SDL equivalent         |
+|-------------------------|-----------------------------|
+| SDL_GetPreferredLocales | ✅ Extra.Locale.GetPreferred |
 ### Platform-specific Functionality
 | Original Function                        | Neko.SDL equivalent                             |
 |------------------------------------------|-------------------------------------------------|
@@ -747,8 +750,8 @@ NOTE: this implements stream so you can do any C# stream shenanigans
 | SDL_GetAndroidInternalStoragePath        | ✅ Extra.System.Android.InternalStoragePath      |
 | SDL_GetAndroidJNIEnv                     | ✅ Extra.System.Android.JniEnv                   |
 | SDL_GetAndroidSDKVersion                 | ✅ Extra.System.Android.SdkVersion               |
-| SDL_GetDeviceFormFactor                  | ❌ Missing                                       |
-| SDL_GetDeviceFormFactorName              | ❌ Missing                                       |
+| SDL_GetDeviceFormFactor                  | TODO: 3.6.0                                       |
+| SDL_GetDeviceFormFactorName              | TODO: 3.6.0                                       |
 | SDL_GetDirect3D9AdapterIndex             | ✅ Extra.System.Direct3D9.GetD3DAdapterIndex     |
 | SDL_GetDXGIOutputInfo                    | ✅ Extra.System.Direct3D9.GetDxgiOutputInfo      |
 | SDL_GetGDKDefaultUser                    | ✅ Extra.System.GDK.DefaultUser                  |
@@ -771,5 +774,188 @@ NOTE: this implements stream so you can do any C# stream shenanigans
 | SDL_ShowAndroidToast                     | ✅ Extra.System.Android.ShowToast                |
 
 ### Standard Library Functionality
+| Original Function              | Neko.SDL equivalent                                  |
+|--------------------------------|------------------------------------------------------|
+| SDL_abs                        | Extra.StandardLibrary.Math.Abs                       |
+| SDL_acos                       | Extra.StandardLibrary.Math.Acos                      |
+| SDL_acosf                      | Extra.StandardLibrary.Math.Acos                      |
+| SDL_aligned_alloc              | Extra.StandardLibrary.UnmanagedMemory.AlignedAlloc   |
+| SDL_aligned_alloc_zero         | TODO: 3.6.0                                          |
+| SDL_aligned_free               | Extra.StandardLibrary.UnmanagedMemory.AlignedFree    |
+| SDL_asin                       | Extra.StandardLibrary.Math.Asin                      |
+| SDL_asinf                      | Extra.StandardLibrary.Math.Asin                      |
+| SDL_asprintf                   |                                                      |
+| SDL_atan                       | Extra.StandardLibrary.Math.Atan                      |
+| SDL_atan2                      | Extra.StandardLibrary.Math.Atan2                     |
+| SDL_atan2f                     | Extra.StandardLibrary.Math.Atan2                     |
+| SDL_atanf                      | Extra.StandardLibrary.Math.Atanf                     |
+| SDL_atof                       | Extra.StandardLibrary.Convert.ToDouble               |
+| SDL_atoi                       | Extra.StandardLibrary.Convert.ToInteger              |
+| SDL_bsearch                    |                                                      |
+| SDL_bsearch_r                  |                                                      |
+| SDL_calloc                     | Extra.StandardLibrary.UnmanagedMemory.Calloc         |
+| SDL_ceil                       | Extra.StandardLibrary.Math.Ceil                      |
+| SDL_ceilf                      | Extra.StandardLibrary.Math.Ceil                      |
+| SDL_copysign                   | Extra.StandardLibrary.Math.CopySign                  |
+| SDL_copysignf                  | Extra.StandardLibrary.Math.CopySign                  |
+| SDL_cos                        | Extra.StandardLibrary.Math.Cos                       |
+| SDL_cosf                       | Extra.StandardLibrary.Math.Cos                       |
+| SDL_crc16                      | Extra.StandardLibrary.Hash.Crc16                     |
+| SDL_crc32                      | Extra.StandardLibrary.Hash.Crc32                     |
+| SDL_CreateEnvironment          | Extra.StandardLibrary.Environment.Create             |
+| SDL_DestroyEnvironment         | Extra.StandardLibrary.Environment.Dispose            |
+| SDL_exp                        | Extra.StandardLibrary.Math.Exp                       |
+| SDL_expf                       | Extra.StandardLibrary.Math.Exp                       |
+| SDL_fabs                       | Extra.StandardLibrary.Math.Abs                       |
+| SDL_fabsf                      | Extra.StandardLibrary.Math.Abs                       |
+| SDL_floor                      | Extra.StandardLibrary.Math.Floor                     |
+| SDL_floorf                     | Extra.StandardLibrary.Math.Floor                     |
+| SDL_fmod                       | Extra.StandardLibrary.Math.Mod                       |
+| SDL_fmodf                      | Extra.StandardLibrary.Math.Mod                       |
+| SDL_free                       | Extra.StandardLibrary.UnmanagedMemory.Free           |
+| SDL_getenv                     |                                                      |
+| SDL_getenv_unsafe              |                                                      |
+| SDL_GetEnvironment             | Extra.StandardLibrary.Environment.GetEnvironment     |
+| SDL_GetEnvironmentVariable     | Extra.StandardLibrary.Environment.GetVariable        |
+| SDL_GetEnvironmentVariables    | Extra.StandardLibrary.Environment.GetVariables       |
+| SDL_GetMemoryFunctions         | MISSING                                              |
+| SDL_GetNumAllocations          | Extra.StandardLibrary.UnmanagedMemory.NumAllocations |
+| SDL_GetOriginalMemoryFunctions | MISSING                                              |
+| SDL_iconv                      |                                                      |
+| SDL_iconv_close                |                                                      |
+| SDL_iconv_open                 |                                                      |
+| SDL_iconv_string               |                                                      |
+| SDL_isalnum                    | Extra.StandardLibrary.CharQuery.IsAlphaNumeric       |
+| SDL_isalpha                    | Extra.StandardLibrary.CharQuery.IsAlphabetic         |
+| SDL_isblank                    | Extra.StandardLibrary.CharQuery.IsBlank              |
+| SDL_iscntrl                    | Extra.StandardLibrary.CharQuery.IsControl            |
+| SDL_isdigit                    | Extra.StandardLibrary.CharQuery.IsDigit              |
+| SDL_isgraph                    | Extra.StandardLibrary.CharQuery.IsGraph              |
+| SDL_isinf                      | Extra.StandardLibrary.CharQuery.IsInf                |
+| SDL_isinff                     | Extra.StandardLibrary.CharQuery.IsInf                |
+| SDL_islower                    | Extra.StandardLibrary.CharQuery.IsLower              |
+| SDL_isnan                      | Extra.StandardLibrary.CharQuery.IsNan                |
+| SDL_isnanf                     | Extra.StandardLibrary.CharQuery.IsNan                |
+| SDL_isprint                    | Extra.StandardLibrary.CharQuery.IsPrint              |
+| SDL_ispunct                    | Extra.StandardLibrary.CharQuery.IsPunctuation        |
+| SDL_isspace                    | Extra.StandardLibrary.CharQuery.IsSpace              |
+| SDL_isupper                    | Extra.StandardLibrary.CharQuery.isUpper              |
+| SDL_isxdigit                   | Extra.StandardLibrary.CharQuery.IsXdigit             |
+| SDL_itoa                       |                                                      |
+| SDL_lltoa                      |                                                      |
+| SDL_log                        | Extra.StandardLibrary.Math.Log                       |
+| SDL_log10                      | Extra.StandardLibrary.Math.Log10                     |
+| SDL_log10f                     | Extra.StandardLibrary.Math.Log10                     |
+| SDL_logf                       | Extra.StandardLibrary.Math.Log                       |
+| SDL_lround                     | Extra.StandardLibrary.Math.Lround                    |
+| SDL_lroundf                    | Extra.StandardLibrary.Math.Lround                    |
+| SDL_ltoa                       |                                                      |
+| SDL_malloc                     | Extra.StandardLibrary.UnmanagedMemory.Malloc         |
+| SDL_memcmp                     | Extra.StandardLibrary.UnmanagedMemory.Compare        |
+| SDL_memcpy                     | Extra.StandardLibrary.UnmanagedMemory.Copy           |
+| SDL_memmove                    | Extra.StandardLibrary.UnmanagedMemory.Move           |
+| SDL_memset                     | Extra.StandardLibrary.UnmanagedMemory.Set            |
+| SDL_memset4                    | Extra.StandardLibrary.UnmanagedMemory.Set            |
+| SDL_modf                       | Extra.StandardLibrary.Math.Modf                      |
+| SDL_modff                      | Extra.StandardLibrary.Math.Modf                      |
+| SDL_murmur3_32                 | Extra.StandardLibrary.Hash.Murmu3                    |
+| SDL_pow                        | Extra.StandardLibrary.Math.Pow                       |
+| SDL_powf                       | Extra.StandardLibrary.Math.Pow                       |
+| SDL_qsort                      |                                                      |
+| SDL_qsort_r                    | Extra.StandardLibrary.Sorting.QSort                  |
+| SDL_rand                       | Extra.StandardLibrary.Math.Random                    |
+| SDL_rand_bits                  | Extra.StandardLibrary.Math.Random                    |
+| SDL_rand_bits_r                | Extra.StandardLibrary.Math.Random                    |
+| SDL_rand_r                     | Extra.StandardLibrary.Math.Random                    |
+| SDL_randf                      | Extra.StandardLibrary.Math.RandomF                   |
+| SDL_randf_r                    | Extra.StandardLibrary.Math.RandomF                   |
+| SDL_realloc                    | Extra.StandardLibrary.UnmanagedMemory.Realloc        |
+| SDL_round                      | Extra.StandardLibrary.Math.Round                     |
+| SDL_roundf                     | Extra.StandardLibrary.Math.Round                     |
+| SDL_scalbn                     | Extra.StandardLibrary.Math.Scalbn                    |
+| SDL_scalbnf                    | Extra.StandardLibrary.Math.Scalbn                    |
+| SDL_setenv_unsafe              |                                                      |
+| SDL_SetEnvironmentVariable     | Extra.StandardLibrary.Environment.SetVariable        |
+| SDL_SetMemoryFunctions         | Extra.StandardLibrary.UnmanagedMemory.SetFunctions   |
+| SDL_sin                        | Extra.StandardLibrary.Math.Sin                       |
+| SDL_sinf                       | Extra.StandardLibrary.Math.Sin                       |
+| SDL_size_add_check_overflow    |                                                      |
+| SDL_size_mul_check_overflow    |                                                      |
+| SDL_snprintf                   |                                                      |
+| SDL_sqrt                       | Extra.StandardLibrary.Math.Sqrt                      |
+| SDL_sqrtf                      | Extra.StandardLibrary.Math.Sqrt                      |
+| SDL_srand                      | Extra.StandardLibrary.Math.RandomSeed                |
+| SDL_sscanf                     |                                                      |
+| SDL_StepBackUTF8               |                                                      |
+| SDL_StepUTF8                   |                                                      |
+| SDL_strcasecmp                 |                                                      |
+| SDL_strcasestr                 |                                                      |
+| SDL_strchr                     |                                                      |
+| SDL_strcmp                     |                                                      |
+| SDL_strdup                     |                                                      |
+| SDL_strlcat                    |                                                      |
+| SDL_strlcpy                    |                                                      |
+| SDL_strlen                     |                                                      |
+| SDL_strlwr                     |                                                      |
+| SDL_strncasecmp                |                                                      |
+| SDL_strncmp                    |                                                      |
+| SDL_strndup                    |                                                      |
+| SDL_strnlen                    |                                                      |
+| SDL_strnstr                    |                                                      |
+| SDL_strpbrk                    |                                                      |
+| SDL_strrchr                    |                                                      |
+| SDL_strrev                     |                                                      |
+| SDL_strstr                     |                                                      |
+| SDL_strtod                     |                                                      |
+| SDL_strtok_r                   |                                                      |
+| SDL_strtol                     |                                                      |
+| SDL_strtoll                    |                                                      |
+| SDL_strtoul                    |                                                      |
+| SDL_strtoull                   |                                                      |
+| SDL_strupr                     |                                                      |
+| SDL_swprintf                   |                                                      |
+| SDL_tan                        | Extra.StandardLibrary.Math.Tan                       |
+| SDL_tanf                       | Extra.StandardLibrary.Math.Tan                       |
+| SDL_tolower                    |                                                      |
+| SDL_toupper                    |                                                      |
+| SDL_trunc                      |                                                      |
+| SDL_truncf                     |                                                      |
+| SDL_UCS4ToUTF8                 |                                                      |
+| SDL_uitoa                      |                                                      |
+| SDL_ulltoa                     |                                                      |
+| SDL_ultoa                      |                                                      |
+| SDL_unsetenv_unsafe            |                                                      |
+| SDL_UnsetEnvironmentVariable   | Extra.StandardLibrary.Environment.UnsetVariable      |
+| SDL_utf8strlcpy                |                                                      |
+| SDL_utf8strlen                 |                                                      |
+| SDL_utf8strnlen                |                                                      |
+| SDL_vasprintf                  |                                                      |
+| SDL_vsnprintf                  |                                                      |
+| SDL_vsscanf                    |                                                      |
+| SDL_vswprintf                  |                                                      |
+| SDL_wcscasecmp                 |                                                      |
+| SDL_wcscmp                     |                                                      |
+| SDL_wcsdup                     |                                                      |
+| SDL_wcslcat                    |                                                      |
+| SDL_wcslcpy                    |                                                      |
+| SDL_wcslen                     |                                                      |
+| SDL_wcsncasecmp                |                                                      |
+| SDL_wcsncmp                    |                                                      |
+| SDL_wcsnlen                    |                                                      |
+| SDL_wcsnstr                    |                                                      |
+| SDL_wcsstr                     |                                                      |
+| SDL_wcstol                     |                                                      |
+| SDL_wcstoll                    |                                                      |
+| SDL_wcstoul                    |                                                      |
+| SDL_wcstoull                   |                                                      |
+
 ### GUIDs
+| Original Function  | Neko.SDL equivalent     |
+|--------------------|-------------------------|
+| SDL_GUIDToString   | ✅ Extra.GUID.ToString   |
+| SDL_StringToGUID   | ✅ Extra.GUID.FromString |
+
 ### Miscellaneous
+| Original Function | Neko.SDL equivalent |
+|-------------------|---------------------|
+| SDL_OpenURL       | ✅ NekoSdl.OpenUrl   |
